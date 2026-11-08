@@ -1,0 +1,1481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Torres de Al-Ándalus · Cap. 8.1</title>
+<style>
+:root{--navy:#1f3372;--green:#00674a;--gold:#a59b68;--brick:#b5562f;--cream:#f6eedb;--ink:#2a2118;--red:#a8322a}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:#1d1712;color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
+body{display:flex;justify-content:center}
+#app{width:100%;max-width:820px;height:100vh;height:100dvh;display:flex;flex-direction:column;align-items:center;padding:6px 8px;gap:6px}
+#hud{width:100%;display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;justify-content:space-between;background:#2b221a;color:#f3e7cc;border:2px solid #6b4a2a;border-radius:10px;padding:5px 10px;font-size:14px;line-height:1.2}
+#hud .grp{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+#hud b{color:#ffd98a}
+#hud .hearts{color:#ff6b5a;letter-spacing:1px;font-size:16px}
+#hud .pow{padding:1px 6px;border-radius:6px;background:#3d3024;border:1px solid #6b4a2a;white-space:nowrap}
+#hud .pow.on{background:#00674a;border-color:#7fd1b0;color:#fff}
+#hud button{background:#3d3024;color:#f3e7cc;border:1px solid #6b4a2a;border-radius:6px;padding:3px 8px;font-size:14px;cursor:pointer}
+#stageWrap{flex:1;width:100%;min-height:0;display:flex;align-items:center;justify-content:center}
+#frame{position:relative;border-radius:10px;overflow:hidden;box-shadow:0 0 0 3px #6b4a2a,0 8px 30px rgba(0,0,0,.6);background:#000}
+#game{display:block;width:100%;height:100%}
+.overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:3%;background:rgba(25,18,10,.55);overflow:auto}
+.hidden{display:none!important}
+.card{background:var(--cream);border:3px solid var(--navy);border-radius:14px;box-shadow:0 0 0 4px var(--cream),0 0 0 6px var(--gold),0 10px 30px rgba(0,0,0,.5);padding:1.1em 1.3em;max-width:94%;width:34em;max-height:96%;overflow:auto;font-size:1em}
+.card h1{font-family:Georgia,"Times New Roman",serif;color:var(--navy);margin:.1em 0 .1em;font-size:2em;line-height:1.05;text-align:center;letter-spacing:.5px}
+.card h2{font-family:Georgia,serif;color:var(--navy);margin:.2em 0 .3em;font-size:1.45em;text-align:center}
+.card h3{margin:.8em 0 .3em;font-size:1em;color:var(--green);text-transform:uppercase;letter-spacing:.06em}
+.card p{margin:.4em 0;line-height:1.4}
+.sub{text-align:center;color:#6b4a2a;font-size:.9em;margin-bottom:.4em}
+.tilebar{height:10px;margin:.5em 0;background:repeating-linear-gradient(45deg,#1f7a57 0 8px,#f6eedb 8px 16px,#1f3372 16px 24px,#f6eedb 24px 32px);border-radius:3px}
+.btn{font:inherit;font-weight:700;cursor:pointer;border-radius:10px;border:2px solid var(--navy);background:var(--navy);color:#fff;padding:.55em 1.1em;font-size:1em}
+.btn:hover{filter:brightness(1.15)}
+.btn.alt{background:#fff;color:var(--navy)}
+.btn.green{background:var(--green);border-color:var(--green)}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.row{display:flex;gap:.5em;flex-wrap:wrap;justify-content:center;margin:.5em 0}
+.chips{display:flex;flex-wrap:wrap;gap:.35em;justify-content:center;max-height:13em;overflow:auto;padding:.3em}
+.chip{font:inherit;font-size:.9em;cursor:pointer;border:2px solid #c9b98f;background:#fff;color:var(--ink);border-radius:999px;padding:.3em .8em}
+.chip.sel{background:var(--green);border-color:var(--green);color:#fff;font-weight:700}
+.chip.per{font-weight:700;color:var(--navy);border-color:var(--navy)}
+.chip.per.sel{background:var(--navy);color:#fff}
+input[type=text]{font:inherit;padding:.4em .6em;border:2px solid #c9b98f;border-radius:8px;width:14em;max-width:100%}
+.small{font-size:.85em;color:#5b4a36}
+.legend{display:grid;grid-template-columns:auto 1fr;gap:.25em .6em;font-size:.9em;align-items:center}
+.legend span:nth-child(odd){font-weight:800;color:var(--green);text-align:center;min-width:1.6em}
+.keys{font-size:.85em;background:#fff;border:1px dashed #c9b98f;border-radius:8px;padding:.4em .6em}
+kbd{background:#eee;border:1px solid #bbb;border-bottom-width:2px;border-radius:4px;padding:0 .3em;font-size:.9em}
+/* question modal */
+#qModal{background:rgba(15,10,5,.6)}
+#qModal .card{width:32em}
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:.5em;font-size:.8em;text-transform:uppercase;letter-spacing:.06em;color:var(--green);font-weight:800}
+.qprompt{margin:.6em 0 .7em;font-size:1.12em;line-height:1.45}
+.qprompt .qq{font-family:Georgia,serif;font-style:italic;background:#fff;border-left:5px solid var(--gold);padding:.45em .7em;border-radius:6px;margin-bottom:.4em}
+.qprompt .qs{font-weight:700;color:var(--navy)}
+.blank{display:inline-block;min-width:4.5em;border-bottom:2px solid var(--navy);text-align:center;color:var(--navy);font-weight:800}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:.5em}
+@media (max-width:520px){.opts{grid-template-columns:1fr}}
+.opt{font:inherit;font-size:1.02em;text-align:left;cursor:pointer;border:2px solid #c9b98f;background:#fff;border-radius:10px;padding:.55em .7em;color:var(--ink);line-height:1.3}
+.opt:hover:not(:disabled){border-color:var(--navy);background:#f1f4fb}
+.opt .n{display:inline-block;width:1.4em;color:#9b8a66;font-weight:800}
+.opt.right{background:#dff2e9;border-color:var(--green);font-weight:700}
+.opt.wrong{background:#f7dedb;border-color:var(--red);text-decoration:line-through}
+.opt.gone{opacity:.25}
+.fb{min-height:1.4em;margin:.6em 0 .2em;font-weight:700;text-align:center}
+.fb.ok{color:var(--green)}.fb.no{color:var(--red)}
+.qfoot{display:flex;justify-content:space-between;gap:.5em;margin-top:.4em}
+/* results */
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:.35em .8em;margin:.6em 0}
+.stat{background:#fff;border:1px solid #d8cba8;border-radius:8px;padding:.35em .6em}
+.stat small{display:block;color:#7b6a4e;font-size:.75em;text-transform:uppercase;letter-spacing:.05em}
+.stat b{font-size:1.15em;color:var(--navy)}
+.missed{font-size:.88em;background:#fff;border:1px solid #d8cba8;border-radius:8px;padding:.4em .7em;max-height:11em;overflow:auto}
+.missed div{padding:.25em 0;border-bottom:1px dotted #d8cba8}
+.missed div:last-child{border-bottom:0}
+.missed .c{color:var(--green);font-weight:700}
+#toast{position:absolute;left:50%;top:2.5%;transform:translateX(-50%);background:var(--green);color:#fff;font-weight:800;padding:.45em 1em;border-radius:999px;border:2px solid #b9f0d8;box-shadow:0 4px 14px rgba(0,0,0,.4);opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap;font-size:.95em}
+#toast.show{opacity:1}
+textarea{width:100%;font:inherit;font-size:.85em;min-height:5.5em;border:2px solid #c9b98f;border-radius:8px;padding:.4em}
+select{font:inherit;padding:.25em;border-radius:6px;border:2px solid #c9b98f}
+/* touch controls */
+#touch{width:100%;display:none;justify-content:space-between;align-items:center;gap:8px;padding:2px 4px;user-select:none;-webkit-user-select:none;touch-action:none}
+#touch.show{display:flex}
+#touch .cl{display:flex;gap:8px}
+.tb{width:64px;height:58px;border-radius:14px;border:2px solid #6b4a2a;background:#3d3024;color:#f3e7cc;font-size:24px;font-weight:900;display:flex;align-items:center;justify-content:center;touch-action:none}
+.tb.on{background:#00674a}
+.tb.jump{width:96px;background:#1f3372;font-size:17px}
+.vcol{display:flex;flex-direction:column;gap:6px}
+.vcol .tb{height:40px}
+</style>
+</head>
+<body>
+<div id="app">
+  <div id="hud">
+    <div class="grp"><span id="hName"><b>Torres de Al-Ándalus</b></span><span id="hStage">Etapa 1</span></div>
+    <div class="grp"><span>Puntos <b id="hScore">0</b></span><span class="hearts" id="hLives">♥♥♥</span><span>Racha <b id="hStreak">0</b></span></div>
+    <div class="grp">
+      <span class="pow" id="pShield" title="Escudo de azulejo">◈ 0</span>
+      <span class="pow" id="pHint" title="Pista 50/50">½ 0</span>
+      <span class="pow" id="pFan" title="Abanico sevillano">✺</span>
+      <button id="bMute" title="Sonido (M)">♪</button><button id="bPause" title="Pausa (P)">❚❚</button>
+    </div>
+  </div>
+  <div id="stageWrap">
+    <div id="frame">
+      <canvas id="game"></canvas>
+      <div id="toast"></div>
+
+      <!-- TITLE -->
+      <div id="oTitle" class="overlay">
+        <div class="card">
+          <h1>Torres de Al-Ándalus</h1>
+          <div class="sub">Capítulo 8.1 · Encuentro entre culturas<br>Vocabulario y el condicional</div>
+          <div class="tilebar"></div>
+          <p style="text-align:center">Climb three towers in Spain, dodge the obstacles, and unlock the padlocks with your vocabulary and the conditional.</p>
+          <h3>Empezar en</h3>
+          <div class="row" id="stageRow"></div>
+          <h3>Dificultad</h3>
+          <div class="row" id="diffRow"></div>
+          <div class="row"><button class="btn green" id="bStart">¡A subir!</button></div>
+          <p class="small" id="bestLine" style="text-align:center"></p>
+        </div>
+      </div>
+
+      <!-- INTRO -->
+      <div id="oIntro" class="overlay hidden"><div class="card" id="introCard"></div></div>
+
+      <!-- QUESTION -->
+      <div id="qModal" class="overlay hidden">
+        <div class="card">
+          <div class="qhead"><span id="qTag"></span><span id="qLock"></span></div>
+          <div class="qprompt" id="qPrompt"></div>
+          <div class="opts" id="qOpts"></div>
+          <div class="fb" id="qFb"></div>
+          <div class="qfoot"><button class="btn alt" id="qHint">½ Pista 50/50</button><button class="btn" id="qNext">Continuar ⏎</button></div>
+        </div>
+      </div>
+
+      <!-- GENERIC MESSAGE (clear / game over / pause) -->
+      <div id="oMsg" class="overlay hidden"><div class="card" id="msgCard"></div></div>
+
+      <!-- RESULTS -->
+      <div id="oResults" class="overlay hidden"><div class="card" id="resCard"></div></div>
+
+      </div>
+    </div>
+  </div>
+  <div id="touch">
+    <div class="cl"><div class="tb" data-k="left">◀</div><div class="tb" data-k="right">▶</div></div>
+    <div class="vcol"><div class="tb" data-k="up">▲</div><div class="tb" data-k="down">▼</div></div>
+    <div class="cl"><div class="tb jump" data-k="jump">SALTA</div></div>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* =========================================================
+   CONTENT · Capítulo 8.1
+   ========================================================= */
+// t: n = sustantivo, a = adjetivo, v = verbo, d = adverbio
+const VOCAB = [
+ {w:"la reja",t:"n",d:["Barras de hierro que protegen una ventana o un balcón.","Una estructura de metal decorativa delante de una ventana."]},
+ {w:"el reto",t:"n",d:["Algo difícil que requiere mucho esfuerzo; un desafío.","Una situación complicada que pone a prueba tu capacidad."]},
+ {w:"el antepasado",t:"n",d:["Una persona de tu familia que vivió hace muchos años, antes que tus abuelos.","Un miembro de la familia de generaciones anteriores."]},
+ {w:"la riqueza",t:"n",d:["Abundancia de dinero, bienes o recursos.","Lo que tiene un país cuando posee mucho oro y muchos tesoros."]},
+ {w:"la época",t:"n",d:["Un período de tiempo en la historia.","Un tiempo con características especiales, como la Edad Media."]},
+ {w:"la descendencia",t:"n",d:["El conjunto de hijos, nietos y bisnietos de una persona.","El origen familiar; las raíces de tu familia."]},
+ {w:"la maravilla",t:"n",d:["Algo extraordinario que causa admiración.","Una obra tan bella e impresionante que sorprende a todos."]},
+ {w:"la batalla",t:"n",d:["Un combate entre dos ejércitos en un lugar y un momento específicos.","Una pelea armada que forma parte de una guerra."]},
+ {w:"la guerra",t:"n",d:["Un conflicto armado entre países o grupos.","Un período largo de lucha entre naciones."]},
+ {w:"el arma",t:"n",d:["Un objeto que se usa para atacar o defenderse, como una espada.","El instrumento de combate de un soldado."]},
+ {w:"el arco",t:"n",d:["Una estructura curva sobre una puerta o una ventana.","Una forma curva típica de la arquitectura árabe, como la de herradura."]},
+ {w:"la torre",t:"n",d:["Una construcción alta y estrecha, típica de un castillo.","Un edificio muy alto, como La Giralda de Sevilla."]},
+ {w:"el balcón",t:"n",d:["Una plataforma que sale de la fachada, delante de una ventana.","Un lugar en la pared exterior de una casa desde donde miras la calle."]},
+ {w:"la misión",t:"n",d:["Un lugar donde los misioneros vivían y enseñaban su religión.","Un centro religioso fundado en tierras nuevas, como San Diego de Alcalá."]},
+ {w:"el acueducto",t:"n",d:["Una estructura que llevaba agua a una ciudad.","Una construcción romana con muchos arcos para transportar agua."]},
+ {w:"el misionero",t:"n",d:["Una persona que viaja a otra tierra para enseñar su religión.","Un religioso que funda misiones en territorios lejanos."]},
+ {w:"el imperio",t:"n",d:["Un conjunto de territorios gobernados por un emperador o un país poderoso.","Un Estado enorme que controla muchas tierras y pueblos."]},
+ {w:"el poder",t:"n",d:["La capacidad de controlar o de mandar.","La autoridad que tiene un rey o un gobierno."]},
+ {w:"la tierra",t:"n",d:["El suelo; el territorio de un lugar.","El país o la región donde una persona nace o vive."]},
+ {w:"el soldado",t:"n",d:["Una persona que sirve en el ejército.","Un miembro del ejército que lucha en las batallas."]},
+ {w:"la conquista",t:"n",d:["La acción de tomar un territorio por la fuerza.","La llegada de un ejército que toma el control de otro pueblo."]},
+ {w:"la colonia",t:"n",d:["Un territorio controlado por un país lejano.","Un lugar poblado y gobernado por personas de otro país."]},
+ {w:"el encuentro",t:"n",d:["La reunión de dos personas o de dos culturas.","El momento en que dos grupos se conocen por primera vez."]},
+ {w:"el indígena",t:"n",d:["Una persona originaria de una región antes de la llegada de otros.","Un habitante nativo de una tierra, como los kumeyaay."]},
+ {w:"la población",t:"n",d:["El número total de personas que viven en un lugar.","Los habitantes de una ciudad o de un país."]},
+ {w:"la arquitectura",t:"n",d:["El arte de diseñar y construir edificios.","El estilo de los edificios de una época, como el mudéjar."]},
+ {w:"desconocido",t:"a",d:["Que no se conoce; nuevo y misterioso.","Una tierra que nadie ha explorado es una tierra ___."]},
+ {w:"poderoso",t:"a",d:["Que tiene mucho poder o mucha fuerza.","Un rey con un ejército enorme es muy ___."]},
+ {w:"cristiano",t:"a",d:["Que practica la religión de Cristo.","Relativo a los reinos del norte que lucharon en la Reconquista."]},
+ {w:"europeo",t:"a",d:["Que es de Europa.","Un francés, un italiano y un español son ___s."]},
+ {w:"africano",t:"a",d:["Que es de África.","Una persona de Marruecos o de Egipto es ___."]},
+ {w:"árabe",t:"a",d:["Relativo a los pueblos que llegaron del norte de África en el año 711.","Que es de la cultura y la lengua de Arabia y el norte de África."]},
+ {w:"anteriormente",t:"d",d:["Antes; en un tiempo pasado.","En el pasado, antes de ahora."]},
+ {w:"conquistar",t:"v",d:["Tomar un territorio por la fuerza.","Ganar el control de un país con un ejército."]},
+ {w:"defender",t:"v",d:["Proteger algo o a alguien de un ataque.","Luchar para que el enemigo no entre en tu ciudad."]},
+ {w:"construir",t:"v",d:["Hacer un edificio, una torre o un puente.","Levantar una casa con ladrillos o piedras."]}
+];
+
+const CLOZE = [
+ {s:"Los romanos convirtieron la península ibérica en una ___ de su imperio.",a:"colonia",o:["maravilla","época","batalla"]},
+ {s:"Hispania era una colonia del ___ romano.",a:"imperio",o:["acueducto","encuentro","reto"]},
+ {s:"En Segovia todavía se puede ver un enorme ___ romano.",a:"acueducto",o:["imperio","antepasado","misionero"]},
+ {s:"El acueducto de Segovia tiene más de 160 ___.",a:"arcos",o:["torres","balcones","soldados"]},
+ {s:"En el año 711, los ___ cruzaron desde el norte de África.",a:"árabes",o:["europeos","cristianos","misioneros"]},
+ {s:"La Alhambra es una verdadera ___ de la arquitectura.",a:"maravilla",o:["colonia","guerra","reja"]},
+ {s:"La Alhambra es una maravilla de la ___ nazarí.",a:"arquitectura",o:["población","descendencia","conquista"]},
+ {s:"Durante siglos, los reinos ___ lucharon para recuperar la península.",a:"cristianos",o:["africanos","desconocidos","indígenas"]},
+ {s:"Los reinos cristianos lucharon en muchas ___.",a:"batallas",o:["maravillas","rejas","épocas"]},
+ {s:"Muchos españoles tienen ___ de diferentes culturas.",a:"antepasados",o:["acueductos","balcones","arcos"]},
+ {s:"La mezcla de culturas es la verdadera ___ de España.",a:"riqueza",o:["guerra","reja","batalla"]},
+ {s:"La Giralda es la ___ de la catedral de Sevilla.",a:"torre",o:["reja","colonia","misión"]},
+ {s:"Las ventanas de Sevilla tienen una ___ de hierro para protegerlas.",a:"reja",o:["torre","época","riqueza"]},
+ {s:"Subir la Giralda en agosto es un ___ por el calor.",a:"reto",o:["balcón","arco","imperio"]},
+ {s:"La Edad Media fue una ___ de castillos y caballeros.",a:"época",o:["reja","torre","población"]},
+ {s:"El sultán tenía un ejército enorme; era muy ___.",a:"poderoso",o:["desconocido","indígena","europeo"]},
+ {s:"Los exploradores llegaron a una tierra ___ que no aparecía en ningún mapa.",a:"desconocida",o:["poderosa","cristiana","europea"]},
+ {s:"___, Sevilla era una ciudad musulmana llamada Isbiliya.",a:"Anteriormente",o:["Rápidamente","Tranquilamente","Poderosamente"]},
+ {s:"Desde el ___ podemos ver toda la plaza.",a:"balcón",o:["reto","imperio","antepasado"]},
+ {s:"Los ___ fundaron la Misión San Diego de Alcalá en 1769.",a:"misioneros",o:["árabes","antepasados","acueductos"]},
+ {s:"Los kumeyaay son un pueblo ___ de la región de San Diego.",a:"indígena",o:["europeo","africano","árabe"]},
+ {s:"La ___ de Sevilla es de casi 700.000 habitantes.",a:"población",o:["riqueza","época","arquitectura"]},
+ {s:"El ___ entre dos culturas cambió la historia de América.",a:"encuentro",o:["balcón","acueducto","arco"]},
+ {s:"El soldado llevaba su ___ todos los días.",a:"arma",o:["torre","época","población"]},
+ {s:"Los soldados tenían que ___ la ciudad contra el ataque del enemigo.",a:"defender",o:["olvidar","vender","pintar"]},
+ {s:"En el año 711, los árabes empezaron a ___ la península ibérica.",a:"conquistar",o:["defender","construir","visitar"]},
+ {s:"Los almohades decidieron ___ un alminar enorme en Sevilla.",a:"construir",o:["conquistar","defender","descubrir"]},
+ {s:"La ___ de Granada terminó en 1492.",a:"conquista",o:["población","riqueza","descendencia"]},
+ {s:"Mi familia es de ___ mexicana.",a:"descendencia",o:["época","batalla","arquitectura"]},
+ {s:"Durante la ___, muchas familias perdieron sus casas.",a:"guerra",o:["maravilla","reja","descendencia"]},
+ {s:"Los soldados ganaron la ___ en solo un día.",a:"batalla",o:["época","reja","población"]},
+ {s:"El rey solo pensaba en el oro y la ___.",a:"riqueza",o:["reja","batalla","época"]},
+ {s:"El arco de herradura es típico de la arquitectura ___.",a:"árabe",o:["indígena","romana","moderna"]},
+ {s:"El ___ romano dominaba casi toda Europa.",a:"imperio",o:["encuentro","reto","balcón"]}
+];
+
+const ODD = [
+ {g:["la batalla","la maravilla","la guerra","el arma"],a:"la maravilla"},
+ {g:["el antepasado","el arco","la torre","el balcón"],a:"el antepasado"},
+ {g:["la misión","cristiano","el acueducto","el misionero"],a:"el acueducto"},
+ {g:["el imperio","poderoso","el poder","la reja"],a:"la reja"},
+ {g:["europeo","la tierra","africano","árabe"],a:"la tierra"},
+ {g:["el soldado","las armas","el balcón","la conquista"],a:"el balcón"},
+ {g:["la reja","el balcón","el arco","la guerra"],a:"la guerra"},
+ {g:["el antepasado","la descendencia","la familia","el acueducto"],a:"el acueducto"},
+ {g:["la riqueza","el oro","el tesoro","el reto"],a:"el reto"},
+ {g:["la época","el siglo","la era","la torre"],a:"la torre"},
+ {g:["conquistar","defender","atacar","descansar"],a:"descansar"},
+ {g:["la colonia","el imperio","la conquista","la maravilla"],a:"la maravilla"},
+ {g:["el indígena","la población","el habitante","el arco"],a:"el arco"},
+ {g:["el misionero","la misión","la iglesia","el arma"],a:"el arma"},
+ {g:["la Alhambra","La Giralda","el acueducto de Segovia","la batalla"],a:"la batalla"}
+];
+
+// ---------- Conditional
+const IRR = {decir:"dir",hacer:"har",poder:"podr",poner:"pondr",querer:"querr",saber:"sabr",salir:"saldr",tener:"tendr",venir:"vendr",haber:"habr"};
+const REG = ["conquistar","defender","construir","vivir","visitar","llegar","escribir","volver","estar","ser","ir","viajar","descubrir","aprender","proteger","explorar","ganar","perder","subir","comprar"];
+const PRON = ["yo","tú","él / ella / usted","nosotros","vosotros","ellos / ustedes"];
+const COND_END = ["ía","ías","ía","íamos","íais","ían"];
+const FUT_END = ["é","ás","á","emos","éis","án"];
+function cond(v,p){return (IRR[v]||v)+COND_END[p];}
+function fut(v,p){return (IRR[v]||v)+FUT_END[p];}
+function impf(v,p){
+  if(v==="ser") return ["era","eras","era","éramos","erais","eran"][p];
+  if(v==="ir") return ["iba","ibas","iba","íbamos","ibais","iban"][p];
+  const st=v.slice(0,-2);
+  return v.endsWith("ar") ? st+["aba","abas","aba","ábamos","abais","aban"][p] : st+["ía","ías","ía","íamos","íais","ían"][p];
+}
+function conjOptions(v,p){
+  const c=cond(v,p), first=[], pool=[];
+  if(IRR[v]) first.push(v+COND_END[p]);              // tenería
+  pool.push(fut(v,p));                                // tendrá
+  pool.push(impf(v,p));                               // tenía
+  const others=[0,1,3,5].filter(q=>cond(v,q)!==c);
+  pool.push(cond(v,pick(others)));                    // persona equivocada
+  if(Math.random()<.35) pool.push(c.replace("í","i")); // sin tilde
+  const out=[];
+  for(const x of first.concat(shuffle(pool))) if(x!==c && !out.includes(x) && out.length<3) out.push(x);
+  return out;
+}
+// p: 0 yo, 1 tú, 2 él, 3 nosotros, 4 vosotros, 5 ellos
+const TEMPL = [
+ {s:"Si yo fuera el rey, mi imperio ___ (ser) el más poderoso del mundo.",v:"ser",p:2},
+ {s:"Los misioneros ___ (tener) que aprender las lenguas indígenas.",v:"tener",p:5},
+ {s:"Un buen arquitecto ___ (poner) una reja en cada balcón.",v:"poner",p:2},
+ {s:"¿Tú ___ (salir) a explorar una tierra desconocida?",v:"salir",p:1},
+ {s:"Nosotros ___ (construir) una torre muy alta para ver al enemigo.",v:"construir",p:3},
+ {s:"Si ganaran la batalla, los soldados ___ (volver) a casa con mucha riqueza.",v:"volver",p:5},
+ {s:"La población ___ (querer) vivir en paz y no en guerra.",v:"querer",p:2},
+ {s:"Yo no ___ (saber) qué hacer ante un reto tan grande.",v:"saber",p:0},
+ {s:"Ustedes ___ (visitar) el acueducto de Segovia si viajaran a España.",v:"visitar",p:5},
+ {s:"Si conocieras a tus antepasados, ¿qué les ___ (decir) tú?",v:"decir",p:1},
+ {s:"Con más tiempo, los arquitectos ___ (hacer) otra maravilla como la Alhambra.",v:"hacer",p:5},
+ {s:"Señor, ¿___ (poder) usted explicarme la época de la conquista?",v:"poder",p:2},
+ {s:"Si yo fuera misionero en 1769, ___ (llegar) a San Diego después de un viaje muy largo.",v:"llegar",p:0},
+ {s:"Primero, yo ___ (tener) que buscar una buena tierra con agua.",v:"tener",p:0},
+ {s:"Los soldados y yo ___ (hacer) la construcción de la misión con adobe.",v:"hacer",p:3},
+ {s:"Yo ___ (querer) conocer a la población indígena.",v:"querer",p:0},
+ {s:"Los kumeyaay ___ (poder) enseñarme mucho sobre esta tierra.",v:"poder",p:5},
+ {s:"Los kumeyaay no ___ (estar) contentos con nuestra llegada.",v:"estar",p:5},
+ {s:"Yo ___ (vivir) en un cuarto pequeño de la misión.",v:"vivir",p:0},
+ {s:"Cada mañana, yo ___ (salir) temprano para trabajar.",v:"salir",p:0},
+ {s:"Mis compañeros y yo ___ (poner) una cruz frente a la iglesia.",v:"poner",p:3},
+ {s:"Al final del día, yo ___ (escribir) en mi diario.",v:"escribir",p:0},
+ {s:"Este encuentro entre culturas ___ (ser) el reto más grande de mi vida.",v:"ser",p:2},
+ {s:"Si yo fuera un soldado romano, ___ (vivir) en una colonia lejos de mi familia.",v:"vivir",p:0},
+ {s:"Mis compañeros y yo ___ (hacer) guardia en la torre.",v:"hacer",p:3},
+ {s:"Nosotros nunca ___ (poder) descansar durante la guerra.",v:"poder",p:3},
+ {s:"Yo le ___ (decir) a mi madre que Hispania es una tierra hermosa.",v:"decir",p:0},
+ {s:"Si mi general me diera una casa con balcón, ¡tal vez yo ___ (cambiar) de opinión!",v:"cambiar",p:0},
+ {s:"Si vivieras en Sevilla, tú ___ (subir) a La Giralda todos los días.",v:"subir",p:1},
+ {s:"Si tuviera un caballo, yo ___ (subir) las rampas de La Giralda a caballo.",v:"subir",p:0},
+ {s:"Nosotros ___ (venir) a Granada para ver la Alhambra.",v:"venir",p:3},
+ {s:"Si fueran sultanes, ellos ___ (vivir) en la Alhambra.",v:"vivir",p:5},
+ {s:"¿Qué ___ (hacer) tú en el Patio de los Leones?",v:"hacer",p:1},
+ {s:"Mi profesor ___ (decir) que la Alhambra es una maravilla.",v:"decir",p:2},
+ {s:"Yo ___ (poner) mi mochila en el balcón para descansar.",v:"poner",p:0},
+ {s:"Con más dinero, ustedes ___ (viajar) a Sevilla.",v:"viajar",p:5},
+ {s:"Sin agua, los jardines del Generalife no ___ (existir).",v:"existir",p:5},
+ {s:"Si hubiera una guerra, los soldados ___ (defender) la Torre de la Vela.",v:"defender",p:5},
+ {s:"¿___ (haber) más turistas en la Alhambra en verano?",v:"haber",p:2},
+ {s:"Si pudiera, yo ___ (tener) una casa con una reja de hierro.",v:"tener",p:0},
+ {s:"Tú ___ (aprender) mucho sobre los árabes en Córdoba.",v:"aprender",p:1},
+ {s:"Nosotros ___ (salir) temprano para evitar el calor de Sevilla.",v:"salir",p:3},
+ {s:"Ella ___ (querer) ver los arcos de herradura de la Mezquita.",v:"querer",p:2},
+ {s:"Si fueran ricos, mis padres ___ (comprar) una casa en el Albaicín.",v:"comprar",p:5},
+ {s:"¿___ (poder) tú sacarme una foto frente a la torre?",v:"poder",p:1},
+ {s:"Los arquitectos mudéjares ___ (usar) ladrillo y azulejos.",v:"usar",p:5},
+ {s:"Yo no ___ (saber) encontrar la salida del laberinto.",v:"saber",p:0},
+ {s:"Si encontraras un tesoro, ¿qué ___ (hacer) tú con la riqueza?",v:"hacer",p:1},
+ {s:"Un buen soldado nunca ___ (perder) su arma.",v:"perder",p:2},
+ {s:"Con un mapa, nosotros ___ (descubrir) tierras desconocidas.",v:"descubrir",p:3},
+ {s:"Ella ___ (escribir) un libro sobre sus antepasados.",v:"escribir",p:2},
+ {s:"Si fuera el rey, yo ___ (construir) un acueducto para la ciudad.",v:"construir",p:0},
+ {s:"Con paciencia, ustedes ___ (llegar) a la cima de la colina.",v:"llegar",p:5},
+ {s:"¿Tú ___ (ir) a la Alhambra de noche?",v:"ir",p:1},
+ {s:"Los turistas ___ (estar) cansados después de subir la colina.",v:"estar",p:5},
+ {s:"Nosotros ___ (ser) buenos guías en Sevilla.",v:"ser",p:3},
+ {s:"Si yo fuera sultán, ___ (poner) una fuente en cada patio.",v:"poner",p:0},
+ {s:"Los soldados ___ (salir) de la Alcazaba antes del amanecer.",v:"salir",p:5},
+ {s:"Si vinieras a Granada, ¿___ (venir) tú en tren o en coche?",v:"venir",p:1},
+ {s:"Con más soldados, el sultán ___ (defender) mejor la ciudad.",v:"defender",p:2}
+];
+const STEMS = [
+ {v:"decir",a:"dir-",o:["decir-","dec-","dicr-"]},
+ {v:"hacer",a:"har-",o:["hacer-","hacr-","hic-"]},
+ {v:"poder",a:"podr-",o:["poder-","pudr-","pondr-"]},
+ {v:"poner",a:"pondr-",o:["poner-","ponr-","pusr-"]},
+ {v:"querer",a:"querr-",o:["querer-","quer-","quisr-"]},
+ {v:"saber",a:"sabr-",o:["saber-","sepr-","sapr-"]},
+ {v:"salir",a:"saldr-",o:["salir-","salr-","saler-"]},
+ {v:"tener",a:"tendr-",o:["tener-","tenr-","tuvr-"]},
+ {v:"venir",a:"vendr-",o:["venir-","venr-","vinr-"]},
+ {v:"haber",a:"habr-",o:["haber-","hubr-","hadr-"]}
+];
+const USE_OPTS = ["Pedir algo con cortesía","Una situación hipotética","Si + imperfecto del subjuntivo","Una acción terminada en el pasado"];
+const USES = [
+ {s:"¿Podría usted abrir la puerta de la torre?",a:0},
+ {s:"¿Me prestarías tu mapa, por favor?",a:0},
+ {s:"Me gustaría visitar la Alhambra, por favor.",a:0},
+ {s:"¿Serías tan amable de sacarme una foto?",a:0},
+ {s:"Si yo fuera rey, construiría una torre.",a:2},
+ {s:"Si tuviéramos tiempo, visitaríamos Córdoba.",a:2},
+ {s:"Si ganaran la guerra, volverían con mucha riqueza.",a:2},
+ {s:"Si vivieras en Sevilla, subirías a la Giralda.",a:2},
+ {s:"Con más dinero, viajaría por toda Andalucía.",a:1},
+ {s:"Yo no sabría qué hacer en una batalla.",a:1},
+ {s:"Sin agua, los jardines no existirían.",a:1},
+ {s:"En tu lugar, yo no subiría la torre sin agua.",a:1}
+];
+
+/* =========================================================
+   UTILITIES
+   ========================================================= */
+const W=720, H=800;
+const rnd=(a,b)=>a+Math.random()*(b-a);
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const $=id=>document.getElementById(id);
+const LS={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d;}catch(e){return d;}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}};
+function seeded(seed){let s=seed;return()=>{s=(s*16807)%2147483647;return (s-1)/2147483646;};}
+
+let settings = Object.assign({diff:"normal", startStage:0}, LS.get("torresAlAndalus.prefs",{}));
+const DIFF = {easy:{spd:.75,thr:1.35,lad:.7}, normal:{spd:1,thr:1,lad:1}, hard:{spd:1.2,thr:.78,lad:1.3}};
+
+/* =========================================================
+   QUESTION GENERATORS (all options shuffled)
+   ========================================================= */
+let usedQ = new Set();
+function blankify(s){return esc(s).replace("___",'<span class="blank">?</span>');}
+function cleanDefs(e){return e.d.filter(d=>!d.includes("___"));}
+function qDefToWord(){
+  const e=pick(VOCAB), d=pick(e.d);
+  let pool=VOCAB.filter(o=>o!==e&&o.t===e.t); if(pool.length<3) pool=VOCAB.filter(o=>o!==e);
+  const opts=shuffle(pool).slice(0,3).map(o=>o.w);
+  return {tag:"Vocabulario · definición", key:"dw:"+d, answer:e.w, options:shuffle([e.w,...opts]),
+    prompt:`<div class="qq">«${blankify(d)}»</div><div class="qs">¿Qué palabra corresponde a la definición?</div>`, review:d};
+}
+function qWordToDef(){
+  const e=pick(VOCAB.filter(v=>cleanDefs(v).length)), d=pick(cleanDefs(e));
+  const others=shuffle(VOCAB.filter(o=>o!==e&&cleanDefs(o).length)).slice(0,3).map(o=>pick(cleanDefs(o)));
+  return {tag:"Vocabulario · significado", key:"wd:"+e.w, answer:d, options:shuffle([d,...others]),
+    prompt:`<div class="qs">¿Cuál es la definición de <span style="color:#00674a">«${esc(e.w)}»</span>?</div>`, review:e.w};
+}
+function qCloze(){
+  const c=pick(CLOZE);
+  return {tag:"Vocabulario · completa", key:"cz:"+c.s, answer:c.a, options:shuffle([c.a,...c.o]),
+    prompt:`<div class="qq">${blankify(c.s)}</div><div class="qs">¿Qué palabra completa la oración?</div>`, review:c.s};
+}
+function qOdd(){
+  const g=pick(ODD);
+  return {tag:"Vocabulario · ¿cuál no pertenece?", key:"od:"+g.a, answer:g.a, options:shuffle(g.g),
+    prompt:`<div class="qs">¿Qué palabra NO pertenece al grupo?</div>`, review:"No pertenece: "+g.g.join(", ")};
+}
+function personPick(){return pick([0,1,2,3,5]);}
+function qFill(){
+  const t=pick(TEMPL); const a=cond(t.v,t.p);
+  return {tag:"Condicional · completa", key:"cf:"+t.s, answer:a, options:shuffle([a,...conjOptions(t.v,t.p)]),
+    prompt:`<div class="qq">${blankify(t.s)}</div><div class="qs">Elige la forma correcta del condicional.</div>`, review:t.s};
+}
+function qBare(){
+  const v=Math.random()<.6?pick(Object.keys(IRR)):pick(REG), p=personPick(), a=cond(v,p);
+  return {tag:"Condicional · conjuga", key:"cb:"+v+p, answer:a, options:shuffle([a,...conjOptions(v,p)]),
+    prompt:`<div class="qs">Conjuga en el condicional:</div><div class="qq" style="font-style:normal"><b>${v.toUpperCase()}</b> → <b>${PRON[p]}</b></div>`, review:`${v} → ${PRON[p]}`};
+}
+function qStem(){
+  const s=pick(STEMS);
+  return {tag:"Condicional · raíz irregular", key:"cs:"+s.v, answer:s.a, options:shuffle([s.a,...s.o]),
+    prompt:`<div class="qs">¿Cuál es la raíz irregular del condicional de <span style="color:#00674a">${s.v.toUpperCase()}</span>?</div>`, review:"Raíz de "+s.v};
+}
+function qEnd(){
+  const p=personPick(), a="-"+COND_END[p];
+  const pool=["-ía","-ías","-íamos","-ían","-é","-ás","-emos","-án","-aba","-ábamos"].filter(x=>x!==a);
+  return {tag:"Condicional · terminación", key:"ce:"+p, answer:a, options:shuffle([a,...shuffle(pool).slice(0,3)]),
+    prompt:`<div class="qs">¿Qué terminación del condicional usa <span style="color:#00674a">«${PRON[p]}»</span>?</div>`, review:"Terminación para "+PRON[p]};
+}
+function qUse(){
+  const u=pick(USES);
+  return {tag:"Condicional · ¿para qué se usa?", key:"cu:"+u.s, answer:USE_OPTS[u.a], options:shuffle(USE_OPTS),
+    prompt:`<div class="qq">${esc(u.s)}</div><div class="qs">¿Por qué se usa el condicional en esta oración?</div>`, review:u.s};
+}
+function gen(fns){
+  let q;
+  for(let i=0;i<40;i++){ q=fns(); if(!usedQ.has(q.key)) break; }
+  usedQ.add(q.key);
+  if(usedQ.size>150) usedQ=new Set();
+  return q;
+}
+function genVocabQ(){return gen(()=>{const r=Math.random();return r<.32?qDefToWord():r<.54?qWordToDef():r<.85?qCloze():qOdd();});}
+function genCondQ(){return gen(()=>{const r=Math.random();return r<.5?qFill():r<.7?qBare():r<.81?qStem():r<.88?qEnd():qUse();});}
+
+/* =========================================================
+   STAGES
+   ========================================================= */
+const STAGES = [
+ { key:"giralda", name:"La Giralda", city:"Sevilla", bank:"vocab", look:"brick",
+   floors:[{x1:20,y1:770,x2:700,y2:755},{x1:20,y1:640,x2:660,y2:665},{x1:60,y1:555,x2:700,y2:530},
+           {x1:20,y1:420,x2:660,y2:445},{x1:60,y1:335,x2:700,y2:310},{x1:20,y1:205,x2:560,y2:220},
+           {x1:260,y1:100,x2:420,y2:100}],
+   ladders:[[560,0],[260,0],[420,0,"b"],[120,1],[400,1],[520,1,"b"],[580,2],[320,2],[180,2,"b"],
+            [140,3],[460,3],[600,3,"b"],[500,4],[260,4],[120,4,"b"],[380,5]],
+   gates:[], tileFloors:[1,2,3,4], villain:{type:"giraldillo",f:5,x:62}, start:{f:0,x:80}, bellX:340,
+   hz:["pot","pot","orange"], thrBase:3.1, thrMin:1.6, ladChance:.28 },
+ { key:"alhambra", name:"La Alhambra", city:"Granada", bank:"cond", look:"path",
+   floors:[{x1:20,y1:790,x2:700,y2:778},{x1:60,y1:705,x2:700,y2:685},{x1:20,y1:575,x2:660,y2:600},
+           {x1:60,y1:470,x2:700,y2:445},{x1:20,y1:320,x2:660,y2:345},{x1:100,y1:218,x2:700,y2:195},
+           {x1:60,y1:95,x2:230,y2:95}],
+   ladders:[[640,0],[80,1],[640,2],[80,3],[600,4],[170,5]],
+   gates:[[0,350],[1,380],[2,330],[4,300],[5,400]], tileFloors:[0,1,2,3,4], villain:{type:"lion",f:5,x:668}, start:{f:0,x:50}, bellX:145,
+   hz:["water","water","jar"], thrBase:2.7, thrMin:1.4, ladChance:.38 },
+ { key:"teruel", name:"Torre de El Salvador", city:"Teruel", bank:"mixed", look:"mudejar",
+   floors:[{x1:20,y1:775,x2:700,y2:760},{x1:20,y1:650,x2:660,y2:675},{x1:60,y1:560,x2:700,y2:535},
+           {x1:20,y1:430,x2:660,y2:455},{x1:60,y1:340,x2:700,y2:315},{x1:160,y1:225,x2:700,y2:205},
+           {x1:240,y1:105,x2:420,y2:105}],
+   ladders:[[120,0],[300,0,"b"],[600,1],[200,1,"b"],[100,2],[450,2],[620,3],[380,3,"b"],[470,4],[580,4],[300,5]],
+   gates:[[0,400],[1,350],[3,300],[5,385]], tileFloors:[1,2,3,4], villain:{type:"torico",f:5,x:668}, start:{f:0,x:650}, bellX:330,
+   hz:["plate","plate","brick"], thrBase:2.4, thrMin:1.2, ladChance:.42 }
+];
+const surf=(f,x)=>f.y1+(f.y2-f.y1)*(x-f.x1)/(f.x2-f.x1);
+const downDir=f=>f.y2>f.y1?1:-1;
+
+/* =========================================================
+   AUDIO
+   ========================================================= */
+let AC=null, muted=LS.get("torresAlAndalus.muted",false);
+function ac(){ if(!AC){try{AC=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}} if(AC&&AC.state==="suspended")AC.resume(); return AC; }
+function tone(f,d,type="square",v=.08,delay=0,slide=0){
+  const a=ac(); if(!a||muted) return; const t=a.currentTime+delay;
+  const o=a.createOscillator(), g=a.createGain(); o.type=type; o.frequency.setValueAtTime(f,t);
+  if(slide) o.frequency.exponentialRampToValueAtTime(Math.max(40,f*slide),t+d);
+  g.gain.setValueAtTime(v,t); g.gain.exponentialRampToValueAtTime(.0001,t+d);
+  o.connect(g).connect(a.destination); o.start(t); o.stop(t+d+.03);
+}
+const SFX={
+ jump:()=>tone(480,.12,"square",.04,0,1.7),
+ correct:()=>{tone(660,.1,"triangle",.11);tone(880,.1,"triangle",.11,.09);tone(1175,.2,"triangle",.11,.18);},
+ wrong:()=>{tone(220,.3,"sawtooth",.06,0,.55);},
+ hit:()=>{tone(320,.4,"square",.07,0,.3);tone(160,.4,"triangle",.07,.05,.5);},
+ bonus:()=>[784,988,1175,1568].forEach((f,i)=>tone(f,.13,"triangle",.08,i*.07)),
+ bell:()=>[0,.55,1.1].forEach(d=>{tone(660,1.3,"sine",.16,d);tone(1660,.9,"sine",.05,d);tone(990,1,"sine",.05,d);}),
+ unlock:()=>{tone(1200,.05,"square",.05);tone(900,.08,"square",.05,.06);},
+ throw:()=>tone(170,.14,"triangle",.06,0,.7),
+ brk:()=>tone(900,.12,"square",.04,0,.3),
+ point:()=>tone(1400,.05,"square",.025),
+ open:()=>{tone(300,.2,"triangle",.07,0,1.6);}
+};
+
+/* =========================================================
+   GAME STATE
+   ========================================================= */
+const cv=$("game"), ctx=cv.getContext("2d");
+let R=1, bgCanvas=null;
+let state="title";             // title, intro, play, question, clear, over, paused, results
+let prevState=null;
+let stageIdx=0, ST=STAGES[0], floors, ladders, gates, tiles, hazards, parts, floats, villain, player, bell;
+let keys={left:false,right:false,up:false,down:false,jump:false}, taps={up:false,jump:false};
+let G={score:0,lives:3,streak:0,best:0,correct:0,asked:0,shield:0,hints:0,fan:0,continues:0,missed:[],time:0,stagesDone:0,startedAt:null};
+let stageTime=0, clearT=0, frameT=0;
+const WALK=2.5, JUMP=-6.3, GRAV=.36, CLIMB=1.9;
+
+function newGame(){
+  G=Object.assign(G,{score:0,lives:3,streak:0,best:0,correct:0,asked:0,shield:0,hints:0,fan:0,continues:0,missed:[],time:0,stagesDone:0,startedAt:new Date()});
+  usedQ=new Set();
+  loadStage(+settings.startStage||0);
+}
+function loadStage(i){
+  stageIdx=i; ST=STAGES[i];
+  floors=ST.floors;
+  ladders=ST.ladders.map(a=>({x:a[0],lo:a[1],hi:a[1]+1,broken:a[2]==="b",locked:a[2]!=="b",pop:0}));
+  gates=ST.gates.map(g=>({f:g[0],x:g[1],locked:true,open:0}));
+  tiles=[]; const rr=Math.random;
+  const avoid=[...ladders.map(l=>l.x)];
+  let tries=0;
+  while(tiles.length<3 && tries<200){ tries++;
+    const fi=pick(ST.tileFloors), f=floors[fi], x=rnd(f.x1+50,f.x2-50);
+    if(ladders.some(l=>(l.lo===fi||l.hi===fi)&&Math.abs(l.x-x)<45)) continue;
+    if(gates.some(g=>g.f===fi&&Math.abs(g.x-x)<50)) continue;
+    if(tiles.some(t=>t.f===fi&&Math.abs(t.x-x)<120)) continue;
+    if(fi===ST.start.f&&Math.abs(x-ST.start.x)<100) continue;
+    tiles.push({f:fi,x,taken:false,ph:rr()*6});
+  }
+  hazards=[];parts=[];floats=[];
+  const vf=floors[ST.villain.f];
+  villain={type:ST.villain.type,x:ST.villain.x,f:ST.villain.f,y:surf(vf,ST.villain.x),t:0,wind:0,timer:2.2,extra:0,next:pick(ST.hz)};
+  const sf=floors[ST.start.f];
+  player={x:ST.start.x,y:surf(sf,ST.start.x),f:ST.start.f,state:"ground",vx:0,vy:0,face:1,anim:0,inv:0,moving:false,cp:{f:ST.start.f,x:ST.start.x}};
+  bell={a:0,v:0};
+  stageTime=0; clearT=0;
+  buildBG();
+}
+
+/* =========================================================
+   LAYOUT
+   ========================================================= */
+function layout(){
+  const wrap=$("stageWrap").getBoundingClientRect();
+  const s=Math.min(wrap.width/W, wrap.height/H);
+  const fw=Math.max(200,Math.floor(W*s)), fh=Math.max(222,Math.floor(H*s));
+  const fr=$("frame"); fr.style.width=fw+"px"; fr.style.height=fh+"px";
+  fr.style.fontSize=Math.max(13,Math.min(19,fw/720*18))+"px";
+  const dpr=window.devicePixelRatio||1;
+  const nr=clamp(fw/W*dpr,1,2);
+  if(Math.abs(nr-R)>.01||!bgCanvas||cv.width!==Math.round(W*nr)){R=nr; cv.width=Math.round(W*R); cv.height=Math.round(H*R); buildBG();}
+}
+
+/* =========================================================
+   DRAWING · static background
+   ========================================================= */
+function buildBG(){
+  if(!floors) return;
+  bgCanvas=document.createElement("canvas"); bgCanvas.width=Math.round(W*R); bgCanvas.height=Math.round(H*R);
+  const c=bgCanvas.getContext("2d"); c.setTransform(R,0,0,R,0,0);
+  if(ST.key==="giralda") bgGiralda(c); else if(ST.key==="alhambra") bgAlhambra(c); else bgTeruel(c);
+  ladders.filter(l=>l.broken).forEach(l=>drawLadder(c,l,true));
+  floors.forEach((f,i)=>drawSeg(c,f,ST.look,i===floors.length-1));
+}
+function hArch(c,x,yTop,w,h){ // horseshoe arch opening path (top at yTop, bottom at yTop+h)
+  const r=w/2, cy=yTop+r;
+  c.beginPath();
+  c.moveTo(x-r*.82,yTop+h);
+  c.lineTo(x-r*.82,cy+r*.55);
+  c.arc(x,cy,r,Math.PI*0.68,Math.PI*2.32);
+  c.lineTo(x+r*.82,yTop+h);
+  c.closePath();
+}
+function bgGiralda(c){
+  let g=c.createLinearGradient(0,0,0,H); g.addColorStop(0,"#4c9bd3"); g.addColorStop(.55,"#a7d1ea"); g.addColorStop(1,"#e9f2f4");
+  c.fillStyle=g; c.fillRect(0,0,W,H);
+  const r=seeded(7);
+  c.fillStyle="rgba(255,255,255,.65)";
+  for(let i=0;i<7;i++){const x=r()*W,y=40+r()*420,s=20+r()*30; c.beginPath(); c.ellipse(x,y,s*1.8,s*.55,0,0,7); c.ellipse(x+s,y-s*.3,s,s*.5,0,0,7); c.fill();}
+  // belfry (Renaissance)
+  c.fillStyle="#efe0bb"; c.fillRect(244,0,232,140);
+  c.fillStyle="#e2cf9f"; c.fillRect(244,0,10,140); c.fillRect(466,0,10,140);
+  c.fillStyle="#3b2a1e"; hArch(c,360,22,124,80); c.fill();
+  c.strokeStyle="#c9a663"; c.lineWidth=3; hArch(c,360,22,124,80); c.stroke();
+  c.fillStyle="#3b2a1e"; [276,444].forEach(x=>{hArch(c,x,40,30,58);c.fill();});
+  c.fillStyle="#d9c08a"; c.fillRect(240,128,240,10);
+  for(let x=246;x<476;x+=12){c.fillStyle="#c9ad73";c.fillRect(x,120,6,8);}
+  // shaft
+  g=c.createLinearGradient(140,0,580,0); g.addColorStop(0,"#ad6a42"); g.addColorStop(.5,"#d39668"); g.addColorStop(1,"#ad6a42");
+  c.fillStyle=g; c.fillRect(140,138,440,H-138);
+  // sebka lattice panels
+  [[158,286],[434,562]].forEach(([a,b])=>{
+    c.save(); c.beginPath(); c.rect(a,165,b-a,H-165); c.clip();
+    c.fillStyle="rgba(150,70,35,.18)"; c.fillRect(a,165,b-a,H-165);
+    c.strokeStyle="rgba(125,52,22,.5)"; c.lineWidth=2.4;
+    for(let k=-H;k<W+H;k+=28){c.beginPath();c.moveTo(k,165);c.lineTo(k+H,165+H);c.stroke();c.beginPath();c.moveTo(k,165);c.lineTo(k-H,165+H);c.stroke();}
+    c.restore();
+    // scalloped crown of the panel
+    c.fillStyle="#9c5a33"; for(let x=a;x<b;x+=16){c.beginPath();c.arc(x+8,165,8,Math.PI,0);c.fill();}
+    c.strokeStyle="#efe0bb"; c.lineWidth=2; c.strokeRect(a-4,150,b-a+8,H-150);
+  });
+  // central windows (ajimez: paired horseshoe arches)
+  [160,267,377,487,597,707].forEach(y=>{
+    c.strokeStyle="#efe0bb"; c.lineWidth=2; c.strokeRect(326,y-38,68,62);
+    [347,373].forEach(x=>{ c.fillStyle="#4a2616"; hArch(c,x,y-30,20,46); c.fill(); c.strokeStyle="#efe0bb"; c.lineWidth=1.5; hArch(c,x,y-30,20,46); c.stroke(); });
+    c.fillStyle="#efe0bb"; c.fillRect(358,y-14,4,30);
+  });
+  c.fillStyle="rgba(205,228,240,.16)"; c.fillRect(140,138,440,H-138);
+  // Seville rooftops & orange trees
+  for(let i=0;i<14;i++){
+    const x=-10+i*55+r()*20, h=40+r()*35, w=50+r()*20;
+    c.fillStyle=i%3?"#f6f1e6":"#f3dfb0"; c.fillRect(x,H-h,w,h);
+    c.fillStyle="#b6522e"; c.beginPath(); c.moveTo(x-4,H-h); c.lineTo(x+w/2,H-h-12); c.lineTo(x+w+4,H-h); c.fill();
+    c.fillStyle="#7a5a3a"; c.fillRect(x+w*.3,H-h+12,8,12);
+  }
+  for(let i=0;i<10;i++){
+    const x=r()*W, y=H-20-r()*16;
+    c.fillStyle="#6b4a2a"; c.fillRect(x-2,y,4,20);
+    c.fillStyle="#2f6b35"; c.beginPath(); c.arc(x,y-6,15,0,7); c.fill();
+    c.fillStyle="#f29b26"; for(let k=0;k<6;k++){c.beginPath();c.arc(x+(r()-.5)*22,y-6+(r()-.5)*18,2.5,0,7);c.fill();}
+  }
+}
+function cypress(c,x,base,h){
+  c.fillStyle="#1d4a2a"; c.beginPath(); c.moveTo(x,base-h);
+  c.quadraticCurveTo(x+11,base-h*.45,x+5,base); c.lineTo(x-5,base); c.quadraticCurveTo(x-11,base-h*.45,x,base-h); c.fill();
+  c.fillStyle="#2c6a3c"; c.beginPath(); c.moveTo(x,base-h+6); c.quadraticCurveTo(x+6,base-h*.45,x+2,base-4); c.lineTo(x,base-4); c.fill();
+}
+function bgAlhambra(c){
+  let g=c.createLinearGradient(0,0,0,H); g.addColorStop(0,"#2c4878"); g.addColorStop(.38,"#d4875c"); g.addColorStop(.62,"#f0c088"); g.addColorStop(1,"#f6dcae");
+  c.fillStyle=g; c.fillRect(0,0,W,H);
+  c.fillStyle="rgba(255,226,150,.55)"; c.beginPath(); c.arc(560,250,42,0,7); c.fill();
+  // Sierra Nevada
+  c.fillStyle="#7f8db0"; c.beginPath(); c.moveTo(250,320);
+  const pk=[[300,250],[350,275],[420,205],[480,250],[540,190],[610,240],[660,215],[720,250],[720,320]];
+  pk.forEach(p=>c.lineTo(p[0],p[1])); c.closePath(); c.fill();
+  c.fillStyle="#f4f6fb"; [[420,205],[540,190],[660,215]].forEach(([x,y])=>{c.beginPath();c.moveTo(x,y);c.lineTo(x-22,y+18);c.lineTo(x-8,y+13);c.lineTo(x,y+20);c.lineTo(x+9,y+12);c.lineTo(x+22,y+17);c.closePath();c.fill();});
+  // Alhambra walls ("la roja")
+  c.fillStyle="#b45a33"; c.fillRect(230,178,490,170);
+  for(let x=232;x<720;x+=14){c.fillRect(x,170,8,10);}
+  [[300,40,128],[440,64,112],[610,44,140]].forEach(([x,w,top])=>{
+    c.fillStyle="#bf633a"; c.fillRect(x,top,w,230);
+    for(let k=x;k<x+w;k+=11)c.fillRect(k,top-8,6,9);
+    c.fillStyle="#5a2a18"; hArch(c,x+w/2-6,top+22,9,16); c.fill(); hArch(c,x+w/2+6,top+22,9,16); c.fill();
+  });
+  c.fillStyle="rgba(80,30,15,.25)"; c.fillRect(230,250,490,100);
+  // Torre de la Vela (goal tower)
+  c.fillStyle="#c0653b"; c.fillRect(44,95,202,140);
+  c.fillStyle="#a8532f"; c.fillRect(44,95,12,140); c.fillRect(234,95,12,140);
+  for(let x=44;x<246;x+=16){c.fillStyle="#c0653b";c.fillRect(x,83,9,12);}
+  c.fillStyle="#5a2a18"; [100,190].forEach(x=>{hArch(c,x,130,16,28);c.fill();});
+  c.strokeStyle="#e9c9a0"; c.lineWidth=1.5; c.strokeRect(84,124,32,40); c.strokeRect(174,124,32,40);
+  // hill
+  g=c.createLinearGradient(0,300,0,H); g.addColorStop(0,"#808c47"); g.addColorStop(1,"#4d5c27");
+  c.fillStyle=g; c.beginPath(); c.moveTo(0,250); c.quadraticCurveTo(200,215,330,330); c.quadraticCurveTo(520,300,720,330); c.lineTo(720,H); c.lineTo(0,H); c.closePath(); c.fill();
+  const r=seeded(11);
+  for(let i=0;i<60;i++){c.fillStyle=`rgba(${40+r()*30|0},${70+r()*30|0},30,.55)`; c.beginPath(); c.ellipse(r()*W,330+r()*470,8+r()*14,5+r()*7,0,0,7); c.fill();}
+  // cypresses near the paths
+  [[30,790,70],[700,778,62],[690,685,68],[40,575,64],[700,445,70],[30,320,66],[690,200,60],[300,575,52],[470,445,50]].forEach(a=>cypress(c,...a));
+  // little acequia channel at the bottom
+  c.fillStyle="#3b86c4"; c.fillRect(0,H-6,W,6); c.fillStyle="rgba(255,255,255,.5)"; for(let x=0;x<W;x+=30)c.fillRect(x,H-5,12,1.5);
+}
+function pArch(c,x,yTop,w,h){ // pointed (ojival) arch opening
+  c.beginPath(); c.moveTo(x-w/2,yTop+h); c.lineTo(x-w/2,yTop+w*.6);
+  c.quadraticCurveTo(x-w/2,yTop,x,yTop-w*.15); c.quadraticCurveTo(x+w/2,yTop,x+w/2,yTop+w*.6);
+  c.lineTo(x+w/2,yTop+h); c.closePath();
+}
+function plateRow(c,x1,x2,y,r){ for(let x=x1+r+2,i=0;x<x2-r;x+=r*2+6,i++){ c.fillStyle="#f3efe2"; c.beginPath(); c.arc(x,y,r,0,7); c.fill(); c.fillStyle=i%2?"#2e8b57":"#1f6f9a"; c.beginPath(); c.arc(x,y,r*.55,0,7); c.fill(); } }
+function bgTeruel(c){
+  let g=c.createLinearGradient(0,0,0,H); g.addColorStop(0,"#5f9fd2"); g.addColorStop(.6,"#bcd9e8"); g.addColorStop(1,"#f1dfb6");
+  c.fillStyle=g; c.fillRect(0,0,W,H);
+  const r=seeded(23);
+  // arid hills of Teruel
+  c.fillStyle="#d2ad72"; c.beginPath(); c.moveTo(0,560); c.quadraticCurveTo(160,470,330,540); c.quadraticCurveTo(520,450,720,520); c.lineTo(720,H); c.lineTo(0,H); c.fill();
+  c.fillStyle="#bf9358"; c.beginPath(); c.moveTo(0,640); c.quadraticCurveTo(220,580,420,650); c.quadraticCurveTo(600,600,720,640); c.lineTo(720,H); c.lineTo(0,H); c.fill();
+  // belfry
+  c.fillStyle="#c27744"; c.fillRect(228,0,204,130);
+  c.fillStyle="#3a2418"; pArch(c,330,22,120,90); c.fill();
+  c.strokeStyle="#f3efe2"; c.lineWidth=3; pArch(c,330,22,120,90); c.stroke();
+  c.fillStyle="#2e8b57"; for(let x=236;x<428;x+=16){c.fillRect(x,6,8,8);} 
+  // tower shaft
+  g=c.createLinearGradient(160,0,560,0); g.addColorStop(0,"#a85f35"); g.addColorStop(.5,"#cf8a58"); g.addColorStop(1,"#a85f35");
+  c.fillStyle=g; c.fillRect(160,128,400,H-128);
+  // brick coursing
+  c.strokeStyle="rgba(110,50,20,.18)"; c.lineWidth=1;
+  for(let y=134;y<H;y+=8){c.beginPath();c.moveTo(160,y);c.lineTo(560,y);c.stroke();}
+  // ceramic bands + interlaced arches + little ceramic columns
+  [150,262,372,482,592].forEach((y,k)=>{
+    c.fillStyle="#f3efe2"; c.fillRect(170,y-2,380,4); c.fillStyle="#2e8b57"; c.fillRect(170,y+2,380,3);
+    plateRow(c,175,545,y+14,6);
+    c.strokeStyle="rgba(240,200,160,.55)"; c.lineWidth=3;
+    for(let x=180;x<540;x+=32){c.beginPath();c.arc(x+32,y+70,32,Math.PI,0);c.stroke();}
+    for(let x=180;x<560;x+=32){ c.fillStyle="#2e8b57"; c.fillRect(x-2,y+40,4,34); c.fillStyle="#f3efe2"; for(let yy=y+42;yy<y+74;yy+=8) c.fillRect(x-2,yy,4,3); }
+    c.fillStyle="#3a2418"; pArch(c,360,y+48,26,42); c.fill();
+    c.strokeStyle="#f3efe2"; c.lineWidth=2; pArch(c,360,y+48,26,42); c.stroke();
+  });
+  // street passage under the tower
+  c.fillStyle="#2b1a12"; pArch(c,360,700,90,110); c.fill();
+  c.fillStyle="rgba(255,230,170,.35)"; pArch(c,360,722,56,90); c.fill();
+  c.strokeStyle="#f3efe2"; c.lineWidth=3; pArch(c,360,700,90,110); c.stroke();
+  c.fillStyle="rgba(200,225,240,.14)"; c.fillRect(160,128,400,H-128);
+  // rooftops
+  for(let i=0;i<14;i++){
+    const x=-10+i*55+r()*20, h=40+r()*40, w=50+r()*22; if(x>200&&x<500) continue;
+    c.fillStyle=i%2?"#e8d3ad":"#d9b98a"; c.fillRect(x,H-h,w,h);
+    c.fillStyle="#9c4a28"; c.beginPath(); c.moveTo(x-4,H-h); c.lineTo(x+w/2,H-h-12); c.lineTo(x+w+4,H-h); c.fill();
+    c.fillStyle="#5b3a22"; c.fillRect(x+w*.35,H-h+12,7,11);
+  }
+}
+function drawSeg(c,f,look,isGoal){
+  const ang=Math.atan2(f.y2-f.y1,f.x2-f.x1), L=Math.hypot(f.x2-f.x1,f.y2-f.y1);
+  c.save(); c.translate(f.x1,f.y1); c.rotate(ang);
+  if(look==="brick"){
+    c.fillStyle="#a94c27"; c.fillRect(0,0,L,14);
+    c.fillStyle="#e2916a"; c.fillRect(0,0,L,3);
+    c.strokeStyle="rgba(70,25,8,.5)"; c.lineWidth=1; c.beginPath();
+    c.moveTo(0,8.5); c.lineTo(L,8.5);
+    for(let x=0;x<L;x+=16){c.moveTo(x+.5,3);c.lineTo(x+.5,8.5);c.moveTo(x+8.5,8.5);c.lineTo(x+8.5,14);}
+    c.stroke();
+    for(let x=0,i=0;x<L-1;x+=10,i++){c.fillStyle=i%2?"#efe2c2":"#1f7a57";c.beginPath();c.moveTo(x,14);c.lineTo(Math.min(L,x+10),14);c.lineTo(x+5,20);c.closePath();c.fill();}
+  } else if(look==="mudejar"){
+    c.fillStyle="#b8693a"; c.fillRect(0,0,L,15);
+    c.fillStyle="#e7a673"; c.fillRect(0,0,L,3);
+    c.strokeStyle="rgba(70,25,8,.45)"; c.lineWidth=1; c.beginPath(); c.moveTo(0,15); c.lineTo(L,15); c.stroke();
+    for(let x=10,i=0;x<L-6;x+=22,i++){ c.fillStyle="#f3efe2"; c.beginPath(); c.arc(x,9,4.6,0,7); c.fill(); c.fillStyle=i%2?"#2e8b57":"#1f6f9a"; c.beginPath(); c.arc(x,9,2.5,0,7); c.fill(); }
+    for(let x=0,i=0;x<L;x+=7,i++){ c.fillStyle=i%2?"#2e8b57":"#f3efe2"; c.fillRect(x,15,7,4); }
+  } else {
+    c.fillStyle="#8f7553"; c.fillRect(0,10,L,13);
+    c.strokeStyle="rgba(50,35,20,.45)"; c.lineWidth=1; c.beginPath();
+    for(let x=0;x<L;x+=22){c.moveTo(x+.5,10);c.lineTo(x+.5,16);c.moveTo(x+11.5,16);c.lineTo(x+11.5,23);} c.moveTo(0,16.5);c.lineTo(L,16.5); c.stroke();
+    c.fillStyle="#dcc69e"; c.fillRect(0,0,L,10);
+    c.fillStyle="#f1e3c2"; c.fillRect(0,0,L,2.5);
+    c.fillStyle="rgba(140,110,70,.45)"; for(let x=4;x<L;x+=9){c.beginPath();c.ellipse(x,6,3.2,2,0,0,7);c.fill();}
+    for(let x=0,i=0;x<L;x+=6,i++){c.fillStyle=i%2?"#1f7a57":"#f3ead2";c.fillRect(x,23,6,3);}
+  }
+  if(isGoal){c.fillStyle="#a59b68"; c.fillRect(0,-2,L,2);}
+  c.restore();
+}
+function drawLadder(c,l,staticPass){
+  const top=surf(floors[l.hi],l.x), bot=surf(floors[l.lo],l.x);
+  const stone=ST.look==="path";
+  const rail=stone?"#a89272":"#7b4a26", rung=stone?"#cdb991":"#a8703f";
+  const segs = l.broken ? [[top,top+20],[bot-20,bot]] : [[top,bot]];
+  segs.forEach(([a,b])=>{
+    c.fillStyle=rail; c.fillRect(l.x-11,a,4,b-a); c.fillRect(l.x+7,a,4,b-a);
+    c.fillStyle=rung; for(let y=b-6;y>a+2;y-=(stone?9:11)) c.fillRect(l.x-8,y,16,stone?4:3);
+  });
+  if(staticPass) return;
+  if(l.locked){
+    const mid=(top+bot)/2;
+    if(stone){ // iron reja
+      c.fillStyle="rgba(30,25,20,.92)";
+      for(let x=l.x-13;x<=l.x+13;x+=5) c.fillRect(x,top+4,2,bot-top-6);
+      c.fillRect(l.x-15,top+8,30,3); c.fillRect(l.x-15,bot-12,30,3); c.fillRect(l.x-15,mid-2,30,3);
+    } else {
+      c.strokeStyle="#8e8e8e"; c.lineWidth=2; c.setLineDash([4,3]);
+      c.beginPath(); c.moveTo(l.x-11,top+8); c.lineTo(l.x+11,bot-8); c.moveTo(l.x+11,top+8); c.lineTo(l.x-11,bot-8); c.stroke(); c.setLineDash([]);
+    }
+    drawLock(c,l.x,mid,frameT);
+  }
+}
+function drawLock(c,x,y,t){
+  const p=.5+.5*Math.sin(t*.08);
+  c.fillStyle=`rgba(255,215,90,${.25+.25*p})`; c.beginPath(); c.arc(x,y,16+p*3,0,7); c.fill();
+  c.strokeStyle="#6b5a1d"; c.lineWidth=3; c.beginPath(); c.arc(x,y-5,6,Math.PI,0); c.stroke();
+  c.fillStyle="#e1b83e"; c.strokeStyle="#7b6216"; c.lineWidth=1.5;
+  c.beginPath(); c.roundRect? c.roundRect(x-9,y-5,18,14,3) : c.rect(x-9,y-5,18,14); c.fill(); c.stroke();
+  c.fillStyle="#3a2c08"; c.beginPath(); c.arc(x,y+1,2.2,0,7); c.fill(); c.fillRect(x-1,y+1,2,5);
+}
+function drawGate(c,g){
+  const y=surf(floors[g.f],g.x), x=g.x;
+  // pillars + alfiz
+  c.fillStyle="#c9b48a"; c.fillRect(x-24,y-70,8,70); c.fillRect(x+16,y-70,8,70);
+  c.strokeStyle="#8a6f45"; c.lineWidth=1.5; c.strokeRect(x-26,y-76,52,76);
+  // horseshoe arch with alternating voussoirs
+  const r=18, cy=y-50;
+  for(let i=0;i<12;i++){
+    const a0=Math.PI*0.72+i*(Math.PI*1.56/12), a1=a0+Math.PI*1.56/12;
+    c.strokeStyle=i%2?"#efe3c4":"#b5422f"; c.lineWidth=7; c.beginPath(); c.arc(x,cy,r,a0,a1); c.stroke();
+  }
+  // doors
+  const o=g.open, dw=14*(1-o);
+  if(dw>.5){
+    c.fillStyle="#6b3d1e";
+    c.fillRect(x-14,cy+2,dw,y-cy-2); c.fillRect(x+14-dw,cy+2,dw,y-cy-2);
+    c.beginPath(); c.moveTo(x-14,cy+2); c.arc(x,cy+2,14,Math.PI,0); c.lineTo(x+14,cy+2); c.closePath();
+    c.globalAlpha=1-o; c.fill(); c.globalAlpha=1;
+    c.fillStyle="#c9a24a"; for(let k=0;k<3;k++){c.beginPath();c.arc(x-9+o*-5,cy+12+k*12,1.6,0,7);c.arc(x+9+o*5,cy+12+k*12,1.6,0,7);c.fill();}
+    c.strokeStyle="rgba(0,0,0,.35)"; c.lineWidth=1; c.beginPath(); c.moveTo(x,cy-10); c.lineTo(x,y); c.stroke();
+  }
+  if(g.locked) drawLock(c,x,y-26,frameT);
+}
+function drawTile(c,t){
+  const y=surf(floors[t.f],t.x)-26+Math.sin(frameT*.07+t.ph)*3;
+  c.save(); c.translate(t.x,y); c.rotate(Math.PI/4+Math.sin(frameT*.03+t.ph)*.15);
+  c.fillStyle="rgba(255,230,120,.35)"; c.fillRect(-14,-14,28,28);
+  c.fillStyle="#f4e7c3"; c.fillRect(-10,-10,20,20);
+  c.strokeStyle="#1f3372"; c.lineWidth=2; c.strokeRect(-10,-10,20,20);
+  c.fillStyle="#1f7a57"; c.beginPath(); for(let i=0;i<8;i++){const a=i*Math.PI/4, rr=i%2?3.5:8; c.lineTo(Math.cos(a)*rr,Math.sin(a)*rr);} c.closePath(); c.fill();
+  c.fillStyle="#e1b83e"; c.beginPath(); c.arc(0,0,2.6,0,7); c.fill();
+  c.restore();
+}
+function drawBell(c){
+  const x=ST.bellX, top=floors[floors.length-1].y1;
+  if(ST.key==="alhambra"){ // espadaña over the Torre de la Vela
+    c.fillStyle="#d9c7a0"; c.fillRect(x-24,top-62,6,62); c.fillRect(x+18,top-62,6,62);
+    c.fillStyle="#d9c7a0"; c.beginPath(); c.moveTo(x-28,top-62); c.lineTo(x,top-82); c.lineTo(x+28,top-62); c.closePath(); c.fill();
+    c.fillStyle="#3a2a1e"; c.fillRect(x-1,top-80,2,10);
+  }
+  c.save(); c.translate(x, ST.key==="alhambra"?top-60:top-62); c.rotate(bell.a);
+  c.strokeStyle="#4a3524"; c.lineWidth=2; c.beginPath(); c.moveTo(0,-6); c.lineTo(0,2); c.stroke();
+  const g=c.createLinearGradient(-14,0,14,0); g.addColorStop(0,"#8e6b14"); g.addColorStop(.45,"#f0cf63"); g.addColorStop(1,"#8e6b14");
+  c.fillStyle=g; c.beginPath(); c.moveTo(-6,2); c.quadraticCurveTo(-9,10,-10,22); c.lineTo(-15,28); c.lineTo(15,28); c.lineTo(10,22); c.quadraticCurveTo(9,10,6,2); c.closePath(); c.fill();
+  c.fillStyle="#6b4f10"; c.beginPath(); c.arc(Math.sin(bell.a*3)*4,30,3.5,0,7); c.fill();
+  c.restore();
+  if(state==="play"){
+    c.fillStyle="rgba(255,255,255,.85)"; c.font="bold 12px system-ui"; c.textAlign="center";
+    if(ST.key==="alhambra") c.fillText("¡META!", x+58, top-40+Math.sin(frameT*.1)*2);
+    else c.fillText("¡META!", x, top-72+Math.sin(frameT*.1)*2);
+  }
+}
+
+/* =========================================================
+   DRAWING · characters & hazards
+   ========================================================= */
+function drawPlayer(c,p){
+  c.save(); c.translate(p.x,p.y);
+  if(p.inv>0 && Math.floor(p.inv/5)%2) c.globalAlpha=.35;
+  const skin="#d9a47c", hair="#3b2416", hood="#1f3372", jeans="#34507e", pack="#00674a";
+  if(p.state==="climb"){
+    const s=Math.sin(p.anim);
+    c.strokeStyle=jeans; c.lineWidth=5; c.lineCap="round";
+    c.beginPath(); c.moveTo(-3,-14); c.lineTo(-4,-2+s*3); c.moveTo(3,-14); c.lineTo(4,-2-s*3); c.stroke();
+    c.fillStyle="#f4f4f4"; c.fillRect(-7,-3+s*3,6,4); c.fillRect(1,-3-s*3,6,4);
+    c.fillStyle=hood; c.beginPath(); c.roundRect?c.roundRect(-7,-30,14,17,4):c.rect(-7,-30,14,17); c.fill();
+    c.strokeStyle=hood; c.lineWidth=4;
+    c.beginPath(); c.moveTo(-6,-27); c.lineTo(-10,-38+s*4); c.moveTo(6,-27); c.lineTo(10,-38-s*4); c.stroke();
+    c.fillStyle=skin; c.beginPath(); c.arc(-10,-39+s*4,2.6,0,7); c.arc(10,-39-s*4,2.6,0,7); c.fill();
+    c.fillStyle=pack; c.beginPath(); c.roundRect?c.roundRect(-7,-29,14,15,4):c.rect(-7,-29,14,15); c.fill();
+    c.fillStyle="#0b4d37"; c.fillRect(-5,-21,10,5); c.fillStyle="#c9b46a"; c.fillRect(-1,-29,2,3);
+    c.fillStyle=hair; c.beginPath(); c.arc(0,-36,7.5,0,7); c.fill();
+  } else {
+    c.scale(p.face,1);
+    const air=p.state==="air"; const sw=air?0:(p.moving?Math.sin(p.anim)*5:0);
+    c.lineCap="round";
+    c.strokeStyle="#2a4166"; c.lineWidth=5; c.beginPath(); c.moveTo(0,-14); c.lineTo(air?-4:-sw,air?-5:-1); c.stroke();
+    c.fillStyle="#e6e6e6"; c.fillRect((air?-4:-sw)-2,(air?-6:-3),8,4);
+    // backpack (behind)
+    c.fillStyle=pack; c.beginPath(); c.roundRect?c.roundRect(-13,-31,9,16,3):c.rect(-13,-31,9,16); c.fill();
+    c.fillStyle="#0b4d37"; c.fillRect(-13,-22,9,4);
+    // torso
+    c.fillStyle=hood; c.beginPath(); c.roundRect?c.roundRect(-6,-30,12,17,4):c.rect(-6,-30,12,17); c.fill();
+    c.strokeStyle="#c9b46a"; c.lineWidth=2; c.beginPath(); c.moveTo(-4,-29); c.lineTo(3,-17); c.stroke();
+    c.strokeStyle=jeans; c.lineWidth=5; c.beginPath(); c.moveTo(0,-14); c.lineTo(air?5:sw,air?-7:-1); c.stroke();
+    c.fillStyle="#fafafa"; c.fillRect((air?5:sw)-2,(air?-8:-3),9,4); c.fillStyle="#999"; c.fillRect((air?5:sw)-2,(air?-5:0),9,1);
+    // arm
+    const ax=air?7:2-sw*.8, ay=air?-34:-17;
+    c.strokeStyle=hood; c.lineWidth=4; c.beginPath(); c.moveTo(1,-26); c.lineTo(ax,ay); c.stroke();
+    c.fillStyle=skin; c.beginPath(); c.arc(ax,ay,2.6,0,7); c.fill();
+    if(G.fan>0){ // abanico
+      c.save(); c.translate(ax+2,ay-2); c.rotate(-.6+Math.sin(frameT*.5)*.4);
+      c.fillStyle="#c0392b"; c.beginPath(); c.moveTo(0,0); c.arc(0,0,13,-Math.PI*.9,-Math.PI*.1); c.closePath(); c.fill();
+      c.strokeStyle="#f0cf63"; c.lineWidth=1; for(let k=0;k<5;k++){const a=-Math.PI*.9+k*Math.PI*.2; c.beginPath(); c.moveTo(0,0); c.lineTo(Math.cos(a)*13,Math.sin(a)*13); c.stroke();}
+      c.restore();
+    }
+    // head
+    c.fillStyle=skin; c.beginPath(); c.arc(1,-36,7,0,7); c.fill();
+    c.fillStyle=hair; c.beginPath(); c.arc(0,-37,7.6,Math.PI*.95,Math.PI*2.02); c.fill(); c.fillRect(-7.5,-38,4,7);
+    c.fillStyle="#222"; c.beginPath(); c.arc(5,-36,1.2,0,7); c.fill();
+    c.strokeStyle="#8a4b2f"; c.lineWidth=1; c.beginPath(); c.arc(4,-33,2,0.2,1.4); c.stroke();
+  }
+  c.restore();
+  if(G.shield>0){
+    c.save(); c.translate(p.x,p.y-18); c.rotate(frameT*.03);
+    c.strokeStyle="rgba(40,150,210,.75)"; c.lineWidth=2; c.setLineDash([5,4]);
+    c.beginPath(); for(let i=0;i<6;i++){const a=i*Math.PI/3; c.lineTo(Math.cos(a)*24,Math.sin(a)*24);} c.closePath(); c.stroke(); c.setLineDash([]);
+    c.restore();
+  }
+}
+function drawHeld(c,type,x,y){
+  const h={type,x,y,r:type==="orange"?8:type==="water"?9:11,rot:0};
+  drawHaz(c,h);
+}
+function drawGiraldillo(c,v){
+  const w=v.wind;
+  c.save(); c.translate(v.x,v.y);
+  c.fillStyle="#6e5220"; c.fillRect(-18,-7,36,7);
+  // banner pole + flag
+  c.strokeStyle="#5e4317"; c.lineWidth=3; c.beginPath(); c.moveTo(-12,-28); c.lineTo(-16,-100); c.stroke();
+  const wv=Math.sin(frameT*.12)*4;
+  c.fillStyle="#b88a3a"; c.beginPath(); c.moveTo(-16,-98); c.quadraticCurveTo(-30,-102+wv,-44,-96); c.lineTo(-42,-80); c.quadraticCurveTo(-29,-86+wv,-16,-82); c.closePath(); c.fill();
+  c.strokeStyle="#6e5220"; c.lineWidth=1; c.stroke();
+  // robe
+  const g=c.createLinearGradient(-15,0,15,0); g.addColorStop(0,"#6e4f1f"); g.addColorStop(.5,"#b8893c"); g.addColorStop(1,"#6e4f1f");
+  c.fillStyle=g; c.beginPath(); c.moveTo(-16,-7); c.lineTo(16,-7); c.lineTo(9,-44); c.lineTo(-9,-44); c.closePath(); c.fill();
+  c.strokeStyle="rgba(60,40,10,.6)"; c.lineWidth=1; c.beginPath(); c.moveTo(-5,-40); c.lineTo(-8,-8); c.moveTo(4,-40); c.lineTo(6,-8); c.stroke();
+  c.fillStyle="#e1b83e"; c.fillRect(-9,-30,18,3);
+  // left arm to pole
+  c.strokeStyle="#8f6a2a"; c.lineWidth=5; c.lineCap="round"; c.beginPath(); c.moveTo(-7,-40); c.lineTo(-13,-30); c.stroke();
+  // throwing arm
+  if(w>0){
+    const hx=16-w*6, hy=-60-w*8;
+    c.beginPath(); c.moveTo(7,-40); c.lineTo(hx,hy); c.stroke();
+    drawHeld(c,v.next,hx+2,hy-8);
+  } else {
+    c.beginPath(); c.moveTo(7,-40); c.lineTo(14,-28); c.stroke();
+    c.fillStyle="#9c7330"; c.strokeStyle="#5e4317"; c.lineWidth=1.5; c.beginPath(); c.arc(17,-26,8,0,7); c.fill(); c.stroke();
+    c.strokeStyle="#e1b83e"; c.beginPath(); c.moveTo(17,-32); c.lineTo(17,-20); c.moveTo(11,-26); c.lineTo(23,-26); c.stroke();
+  }
+  // head + helmet
+  c.fillStyle="#c49a45"; c.beginPath(); c.arc(0,-52,9,0,7); c.fill();
+  c.fillStyle="#7d5b20"; c.beginPath(); c.arc(0,-54,9.6,Math.PI,0); c.fill();
+  c.fillStyle="#a8322a"; c.beginPath(); c.moveTo(-2,-63); c.quadraticCurveTo(-12,-74,-16,-62); c.quadraticCurveTo(-8,-66,-2,-60); c.fill();
+  c.fillStyle="#fff"; c.beginPath(); c.ellipse(-3,-51,2.6,2,0,0,7); c.ellipse(4,-51,2.6,2,0,0,7); c.fill();
+  c.fillStyle="#111"; c.beginPath(); c.arc(-2,-51,1.2,0,7); c.arc(5,-51,1.2,0,7); c.fill();
+  c.strokeStyle="#3b2a0c"; c.lineWidth=1.8; c.beginPath(); c.moveTo(-7,-56); c.lineTo(-1,-54); c.moveTo(8,-56); c.lineTo(2,-54); c.stroke();
+  c.lineWidth=1.4; c.beginPath(); c.arc(1,-44,3,Math.PI*1.15,Math.PI*1.85); c.stroke();
+  c.restore();
+}
+function drawLion(c,v){
+  const w=v.wind;
+  c.save(); c.translate(v.x,v.y); c.scale(1.25,1.25);
+  // basin
+  c.fillStyle="#e9e2d0"; c.fillRect(-26,-5,52,5); c.fillStyle="#cfc6b0"; c.fillRect(-26,-2,52,2);
+  // tail
+  c.strokeStyle="#c8bea5"; c.lineWidth=3; c.beginPath(); c.moveTo(18,-14); c.quadraticCurveTo(30,-20,26,-32); c.stroke();
+  c.fillStyle="#b6a983"; c.beginPath(); c.arc(26,-33,4,0,7); c.fill();
+  // body + legs
+  c.fillStyle="#ddd5bf"; c.beginPath(); c.ellipse(6,-15,18,10,0,0,7); c.fill();
+  c.fillRect(-8,-12,6,10); c.fillRect(0,-12,6,10); c.fillRect(14,-12,6,10);
+  // mane
+  c.fillStyle="#c2b48f"; c.beginPath();
+  for(let i=0;i<16;i++){const a=i*Math.PI/8, rr=i%2?13:16; c.lineTo(-10+Math.cos(a)*rr,-28+Math.sin(a)*rr);} c.closePath(); c.fill();
+  // face
+  c.fillStyle="#e7dfca"; c.beginPath(); c.arc(-12,-27,9,0,7); c.fill();
+  c.fillStyle="#222"; c.beginPath(); c.arc(-15,-30,1.4,0,7); c.arc(-9,-30,1.4,0,7); c.fill();
+  c.strokeStyle="#5a4f3a"; c.lineWidth=1.6; c.beginPath(); c.moveTo(-19,-34); c.lineTo(-14,-32); c.moveTo(-5,-34); c.lineTo(-10,-32); c.stroke();
+  c.fillStyle="#8a7a5a"; c.beginPath(); c.moveTo(-14,-26); c.lineTo(-10,-26); c.lineTo(-12,-24); c.fill();
+  c.fillStyle="#3a2f22"; c.beginPath(); c.ellipse(-12,-21,3.5,1.6+w*2.4,0,0,7); c.fill();
+  // fountain trickle
+  c.fillStyle="rgba(80,160,230,.85)";
+  for(let k=0;k<4;k++){const tt=((frameT*.05+k*.25)%1); c.beginPath(); c.arc(-12-tt*10,-20+tt*tt*18,1.6,0,7); c.fill();}
+  c.restore();
+  if(w>0) drawHeld(c,v.next,v.x-22,v.y-38-w*4);
+}
+function drawTorico(c,v){
+  const w=v.wind, lean=w*5;
+  c.save(); c.translate(v.x,v.y);
+  c.fillStyle="#d9cdb0"; c.fillRect(-8,-34,16,30);
+  c.strokeStyle="rgba(120,100,70,.5)"; c.lineWidth=1; c.beginPath(); for(let k=-5;k<=5;k+=5){c.moveTo(k,-32);c.lineTo(k,-6);} c.stroke();
+  c.fillStyle="#c9bc9a"; c.fillRect(-12,-39,24,6); c.fillRect(-11,-6,22,6);
+  c.translate(0,-39);
+  c.fillStyle="#3b3631";
+  c.fillRect(-11,-8,3,9); c.fillRect(-5,-8,3,9); c.fillRect(4,-8,3,9); c.fillRect(9,-8,3,9);
+  c.beginPath(); c.ellipse(1,-12,13,7,0,0,7); c.fill();
+  c.strokeStyle="#3b3631"; c.lineWidth=2; c.beginPath(); c.moveTo(13,-14); c.quadraticCurveTo(20,-12,18,-2); c.stroke();
+  c.save(); c.translate(-12-lean,-15+lean*.6);
+  c.fillStyle="#46403a"; c.beginPath(); c.ellipse(0,0,6.5,5.5,0,0,7); c.fill();
+  c.fillStyle="#6d655b"; c.beginPath(); c.ellipse(-5,2,3.5,3,0,0,7); c.fill();
+  c.strokeStyle="#f3efe2"; c.lineWidth=2; c.beginPath(); c.moveTo(-2,-4); c.quadraticCurveTo(-6,-11,-1,-12); c.moveTo(3,-4); c.quadraticCurveTo(5,-11,9,-10); c.stroke();
+  c.fillStyle="#ffcf5a"; c.beginPath(); c.arc(-1,-1,1.4,0,7); c.fill();
+  c.restore();
+  c.fillStyle="#e1b83e"; c.beginPath(); for(let i=0;i<10;i++){const a=-Math.PI/2+i*Math.PI/5, rr=i%2?2.2:5; c.lineTo(Math.cos(a)*rr,-26+Math.sin(a)*rr);} c.closePath(); c.fill();
+  c.restore();
+  if(w>0) drawHeld(c,v.next,v.x-24-lean,v.y-66);
+}
+function drawHaz(c,h){
+  c.save(); c.translate(h.x,h.y);
+  if(h.type==="pot"||h.type==="jar"){
+    c.rotate(h.rot);
+    const body=h.type==="pot"?"#c0673a":"#c9844a";
+    c.fillStyle=body; c.beginPath(); c.arc(0,0,h.r,0,7); c.fill();
+    c.fillStyle="#7e3a1c"; c.fillRect(-4,-h.r-3,8,5);
+    c.strokeStyle="#efe2c2"; c.lineWidth=2; c.beginPath(); c.arc(0,0,h.r*.62,0,7); c.stroke();
+    c.strokeStyle="#1f7a57"; c.lineWidth=2; c.beginPath(); c.moveTo(-h.r*.8,0); c.lineTo(h.r*.8,0); c.stroke();
+    if(h.type==="jar"){c.fillStyle="#3b86c4"; c.beginPath(); c.arc(0,-h.r+1,3,0,7); c.fill();}
+  } else if(h.type==="plate"){
+    c.rotate(h.rot);
+    c.fillStyle="#f3efe2"; c.beginPath(); c.arc(0,0,h.r,0,7); c.fill();
+    c.strokeStyle="#2e8b57"; c.lineWidth=2.5; c.beginPath(); c.arc(0,0,h.r*.65,0,7); c.stroke();
+    c.fillStyle="#1f6f9a"; c.beginPath(); c.arc(0,0,2.4,0,7); c.fill();
+    c.fillStyle="#2e8b57"; for(let i=0;i<4;i++){const a=i*Math.PI/2; c.beginPath(); c.arc(Math.cos(a)*h.r*.65,Math.sin(a)*h.r*.65,1.8,0,7); c.fill();}
+  } else if(h.type==="brick"){
+    c.rotate(h.rot);
+    c.fillStyle="#b5562f"; c.fillRect(-11,-6,22,12);
+    c.fillStyle="#d98a5e"; c.fillRect(-11,-6,22,2.5);
+    c.strokeStyle="rgba(60,20,5,.5)"; c.lineWidth=1; c.strokeRect(-11,-6,22,12);
+  } else if(h.type==="orange"){
+    c.rotate(h.rot);
+    c.fillStyle="#f28c1e"; c.beginPath(); c.arc(0,0,h.r,0,7); c.fill();
+    c.fillStyle="rgba(180,90,10,.5)"; c.beginPath(); c.arc(3,2,1.2,0,7); c.arc(-3,3,1.2,0,7); c.arc(1,-3,1.2,0,7); c.fill();
+    c.fillStyle="#2f7d3b"; c.beginPath(); c.ellipse(0,-h.r,3,1.8,.5,0,7); c.fill();
+  } else { // water
+    const wob=Math.sin(frameT*.4+h.x*.1)*1.2;
+    c.fillStyle="#3a8fd6"; c.beginPath(); c.ellipse(0,0,h.r+wob,h.r-wob,0,0,7); c.fill();
+    c.fillStyle="rgba(255,255,255,.75)"; c.beginPath(); c.arc(-3,-3,2.6,0,7); c.fill();
+    c.fillStyle="rgba(58,143,214,.5)"; c.beginPath(); c.arc(-(h.dir||-1)*(h.r+4),2,2.5,0,7); c.arc(-(h.dir||-1)*(h.r+9),4,1.6,0,7); c.fill();
+  }
+  c.restore();
+}
+
+/* =========================================================
+   UPDATE
+   ========================================================= */
+function spawnHazard(){
+  const v=villain, d=DIFF[settings.diff]||DIFF.normal;
+  const type=v.next; v.next=pick(ST.hz);
+  const r=type==="orange"?8:(type==="water"||type==="plate"||type==="brick")?9:11;
+  const base={pot:[1.8,2.3],orange:[2.5,3.0],water:[2.2,2.8],jar:[1.9,2.3],plate:[2.6,3.1],brick:[2.0,2.4]}[type];
+  const L=v.type!=="giraldillo";
+  const h={type,r,x:L?v.x-30:v.x+20, y:L?v.y-(v.type==="torico"?70:46):v.y-70, vx:L?-1.4:1.3, vy:-1, st:"fall", f:-1, v:rnd(...base)*d.spd, rot:0, dir:0, lastL:null, scored:false};
+  hazards.push(h); SFX.throw();
+}
+function updVillain(dt){
+  const v=villain, d=DIFF[settings.diff]||DIFF.normal; v.t+=dt;
+  if(v.wind>0){ v.wind+=dt/28; if(v.wind>=1){v.wind=0; spawnHazard();} return; }
+  v.timer-=dt/60;
+  if(v.timer<=0 && hazards.length<9){
+    v.wind=.01;
+    if(v.extra>0){ v.extra--; v.timer=.9; }
+    else { const fl=Math.max(0,player.f); v.timer=Math.max(ST.thrMin, ST.thrBase-.17*fl)*d.thr*rnd(.75,1.25); }
+  }
+}
+function updHaz(h,dt){
+  const d=DIFF[settings.diff]||DIFF.normal;
+  if(h.st==="roll"){
+    const f=floors[h.f], ox=h.x; h.x+=h.dir*h.v*dt; h.rot+=h.dir*h.v*dt/h.r;
+    if(h.x<f.x1||h.x>f.x2){ h.st="fall"; h.vy=.3; h.vx=h.dir*h.v*.7; return; }
+    h.y=surf(f,h.x)-h.r;
+    for(const l of ladders){
+      if(l.hi===h.f && !l.locked && !l.broken && l!==h.lastL && (ox-l.x)*(h.x-l.x)<=0){
+        h.lastL=l; if(Math.random()<ST.ladChance*d.lad){ h.st="ladder"; h.x=l.x; h.l=l; }
+      }
+    }
+  } else if(h.st==="ladder"){
+    h.y+=1.7*dt; h.rot+=.05*dt;
+    const by=surf(floors[h.l.lo],h.x)-h.r;
+    if(h.y>=by){ h.y=by; h.f=h.l.lo; h.st="roll"; h.dir=downDir(floors[h.f]); h.lastL=h.l; }
+  } else { // fall
+    h.vy+=.35*dt; const py=h.y; h.y+=h.vy*dt; h.x+=h.vx*dt; h.rot+=.08*dt;
+    for(let i=0;i<floors.length;i++){
+      const f=floors[i]; if(h.x<f.x1||h.x>f.x2) continue;
+      const s=surf(f,h.x);
+      if(py+h.r<=s+1 && h.y+h.r>=s){ h.y=s-h.r; h.f=i; h.st="roll"; h.dir=downDir(f); h.lastL=null;
+        if(h.type==="water"||h.type==="jar") splash(h.x,s,"#7cc0f0",5);
+        break; }
+    }
+    if(h.y>H+40) h.dead=true;
+  }
+}
+function splash(x,y,col,n){for(let i=0;i<n;i++)parts.push({x,y,vx:rnd(-2,2),vy:rnd(-3,-.5),life:rnd(20,40),col,s:rnd(1.5,3)});}
+function floatText(x,y,t,col="#fff"){floats.push({x,y,t,col,life:60});}
+function hitHaz(h){
+  const p=player, px1=p.x-8, px2=p.x+8, py1=p.y-34, py2=p.y-1;
+  const cx=clamp(h.x,px1,px2), cy=clamp(h.y,py1,py2);
+  return (h.x-cx)**2+(h.y-cy)**2 < (h.r-1.5)**2;
+}
+function breakHaz(h,pts){
+  h.dead=true; SFX.brk();
+  splash(h.x,h.y,h.type==="water"?"#7cc0f0":h.type==="orange"?"#f28c1e":h.type==="plate"?"#f3efe2":"#c0673a",10);
+  if(pts){G.score+=pts; floatText(h.x,h.y-10,"+"+pts,"#ffe28a");}
+}
+function hurt(fell){
+  const p=player;
+  if(!fell){
+    if(p.inv>0) return;
+  }
+  G.lives--; G.streak=0; SFX.hit();
+  splash(p.x,p.y-18,"#ffffff",14);
+  if(G.lives<=0){ G.lives=0; state="over"; showOver(); return; }
+  respawn();
+}
+function respawn(){
+  const p=player; p.f=p.cp.f; p.x=p.cp.x; p.y=surf(floors[p.f],p.x); p.state="ground"; p.vx=0; p.vy=0; p.inv=130;
+  hazards=hazards.filter(h=>Math.abs(h.y-p.y)>60 || Math.abs(h.x-p.x)>140);
+}
+function updPlayer(dt){
+  const p=player;
+  if(p.inv>0) p.inv-=dt;
+  if(p.state==="climb"){
+    const l=p.ladder, top=surf(floors[l.hi],l.x), bot=surf(floors[l.lo],l.x);
+    p.moving=false;
+    if(keys.up){p.y-=CLIMB*dt;p.moving=true;} else if(keys.down){p.y+=CLIMB*dt;p.moving=true;}
+    if(p.moving) p.anim+=.28*dt;
+    if(p.y<=top){ p.y=top; p.state="ground"; p.f=l.hi; if(l.hi>p.cp.f) p.cp={f:l.hi,x:l.x}; }
+    else if(p.y>=bot){ p.y=bot; p.state="ground"; p.f=l.lo; }
+    return;
+  }
+  if(p.state==="ground"){
+    const dir=(keys.right?1:0)-(keys.left?1:0);
+    p.vx=dir*WALK; if(dir) p.face=dir; p.moving=!!dir; if(dir) p.anim+=.3*dt;
+    const ox=p.x; let nx=p.x+p.vx*dt;
+    for(const g of gates){ if(g.locked && g.f===p.f){ if(ox<=g.x-13 && nx>g.x-13) nx=g.x-13; if(ox>=g.x+13 && nx<g.x+13) nx=g.x+13; } }
+    nx=clamp(nx,10,W-10);
+    const f=floors[p.f];
+    if(p.f===0 || p.f===floors.length-1) nx=clamp(nx,f.x1+5,f.x2-5);
+    p.x=nx;
+    if(p.x<f.x1||p.x>f.x2){ p.state="air"; p.vy=0; p.f=-1; }
+    else p.y=surf(f,p.x);
+    if(p.state==="ground"){
+      if(taps.jump){ p.state="air"; p.vy=JUMP; p.f=-1; SFX.jump(); }
+      else if(keys.up||taps.up){
+        const l=ladders.find(l=>!l.broken && l.lo===p.f && Math.abs(l.x-p.x)<13);
+        if(l){ if(l.locked){ if(taps.up) askLock(l); } else { p.state="climb"; p.ladder=l; p.x=l.x; } }
+        else { const g=gates.find(g=>g.locked && g.f===p.f && Math.abs(g.x-p.x)<28); if(g && taps.up) askLock(g); }
+      } else if(keys.down){
+        const l=ladders.find(l=>!l.broken && !l.locked && l.hi===p.f && Math.abs(l.x-p.x)<13);
+        if(l){ p.state="climb"; p.ladder=l; p.x=l.x; p.y+=1; }
+      }
+    }
+  }
+  if(p.state==="air"){
+    p.vy+=GRAV*dt; const py=p.y; p.y+=p.vy*dt; p.x=clamp(p.x+p.vx*dt,10,W-10);
+    if(p.vy>=0){
+      let best=-1, bs=1e9;
+      floors.forEach((f,i)=>{ if(p.x>=f.x1&&p.x<=f.x2){ const s=surf(f,p.x); if(py<=s+.5 && p.y>=s && s<bs){bs=s;best=i;} } });
+      if(best>=0){ p.y=bs; p.state="ground"; p.f=best; p.vy=0; }
+    }
+    if(p.y>H+50) hurt(true);
+  }
+  // tiles
+  for(const t of tiles){ if(!t.taken && p.f===t.f && Math.abs(p.x-t.x)<16){ askTile(t); break; } }
+  // goal
+  if(p.state==="ground" && p.f===floors.length-1 && Math.abs(p.x-ST.bellX)<70){ stageClear(); }
+}
+function update(dt){
+  frameT+=dt;
+  if(state==="title"){ villainIdle(dt); return; }
+  if(state==="clear"){
+    clearT+=dt; bell.v+=-bell.a*.02*dt; bell.v*=.985; bell.a+=bell.v*dt;
+    updParts(dt);
+    if(clearT>110 && !$("oMsg").classList.contains("show")) showClear();
+    return;
+  }
+  if(state!=="play") return;
+  stageTime+=dt/60; G.time+=dt/60;
+  if(G.fan>0) G.fan=Math.max(0,G.fan-dt/60);
+  updPlayer(dt);
+  if(state!=="play") { taps.up=taps.jump=false; return; }
+  updVillain(dt);
+  for(const h of hazards){
+    updHaz(h,dt);
+    if(h.dead) continue;
+    if(hitHaz(h)){
+      if(G.fan>0){ breakHaz(h,50); continue; }
+      if(player.inv>0) continue;
+      if(G.shield>0){ G.shield--; breakHaz(h,0); player.inv=70; toast("¡El escudo te protegió!"); continue; }
+      h.dead=true; hurt(false); if(state!=="play") break; continue;
+    }
+    if(player.state==="air" && !h.scored && h.st==="roll" && Math.abs(h.x-player.x)<10 && h.y-h.r>player.y-4){
+      h.scored=true; G.score+=25; floatText(player.x,player.y-44,"+25","#fff"); SFX.point();
+    }
+  }
+  hazards=hazards.filter(h=>!h.dead);
+  for(const g of gates) if(!g.locked && g.open<1) g.open=Math.min(1,g.open+dt/30);
+  updParts(dt);
+  taps.up=taps.jump=false;
+}
+function villainIdle(dt){ if(villain){ villain.t+=dt; } }
+function updParts(dt){
+  for(const q of parts){q.x+=q.vx*dt;q.y+=q.vy*dt;q.vy+=.15*dt;q.life-=dt;}
+  parts=parts.filter(q=>q.life>0);
+  for(const f of floats){f.y-=.6*dt;f.life-=dt;}
+  floats=floats.filter(f=>f.life>0);
+}
+
+/* =========================================================
+   RENDER
+   ========================================================= */
+function render(){
+  ctx.setTransform(R,0,0,R,0,0);
+  if(bgCanvas) ctx.drawImage(bgCanvas,0,0,W,H);
+  if(!floors) return;
+  tiles.forEach(t=>{if(!t.taken)drawTile(ctx,t);});
+  ladders.filter(l=>!l.broken).forEach(l=>drawLadder(ctx,l,false));
+  gates.forEach(g=>drawGate(ctx,g));
+  drawBell(ctx);
+  if(villain.type==="lion") drawLion(ctx,villain); else if(villain.type==="torico") drawTorico(ctx,villain); else drawGiraldillo(ctx,villain);
+  hazards.forEach(h=>drawHaz(ctx,h));
+  if(state!=="title") drawPlayer(ctx,player);
+  for(const q of parts){ctx.globalAlpha=clamp(q.life/30,0,1);ctx.fillStyle=q.col;ctx.fillRect(q.x-q.s/2,q.y-q.s/2,q.s,q.s);} ctx.globalAlpha=1;
+  ctx.textAlign="center"; ctx.font="bold 15px system-ui";
+  for(const f of floats){ctx.globalAlpha=clamp(f.life/40,0,1);ctx.fillStyle="rgba(0,0,0,.5)";ctx.fillText(f.t,f.x+1,f.y+1);ctx.fillStyle=f.col;ctx.fillText(f.t,f.x,f.y);} ctx.globalAlpha=1;
+  // "open" hint
+  if(state==="play" && player.state==="ground"){
+    const near = ladders.find(l=>l.locked && l.lo===player.f && Math.abs(l.x-player.x)<13) || gates.find(g=>g.locked && g.f===player.f && Math.abs(g.x-player.x)<28);
+    if(near){
+      const x=player.x, y=player.y-56;
+      ctx.fillStyle="rgba(31,51,114,.92)"; ctx.beginPath(); ctx.roundRect?ctx.roundRect(x-34,y-14,68,22,8):ctx.rect(x-34,y-14,68,22); ctx.fill();
+      ctx.fillStyle="#ffe28a"; ctx.font="bold 13px system-ui"; ctx.fillText("▲ Abrir",x,y+2);
+    }
+  }
+  // stage label
+  ctx.textAlign="left"; ctx.font="bold 13px Georgia"; ctx.fillStyle="rgba(0,0,0,.4)"; ctx.fillRect(8,8,ctx.measureText(ST.city+" · "+ST.name).width+16,20);
+  ctx.fillStyle="#fff"; ctx.fillText(ST.city+" · "+ST.name,16,23);
+}
+
+/* =========================================================
+   QUESTIONS UI
+   ========================================================= */
+let curQ=null, curLock=null, curKind=null, qDone=false, qTimer=null;
+function bankQ(){ return ST.bank==="vocab"?genVocabQ():ST.bank==="cond"?genCondQ():(Math.random()<.4?genVocabQ():genCondQ()); }
+function askLock(obj){ curLock=obj; curKind="lock"; openQ(bankQ(), obj.f!==undefined&&obj.lo===undefined?"Puerta cerrada":"Candado"); }
+function askTile(t){ t.taken=true; curLock=t; curKind="tile"; openQ(Math.random()<.5?genVocabQ():genCondQ(),"Azulejo dorado · pregunta extra"); }
+function openQ(q,label){
+  state="question"; curQ=q; qDone=false; G.asked++;
+  keys.up=keys.down=keys.left=keys.right=false;
+  $("qTag").textContent=q.tag; $("qLock").textContent=label;
+  $("qPrompt").innerHTML=q.prompt;
+  const box=$("qOpts"); box.innerHTML="";
+  q.options.forEach((o,i)=>{
+    const b=document.createElement("button"); b.className="opt"; b.innerHTML=`<span class="n">${i+1}</span>${esc(o)}`;
+    b.onclick=()=>answer(i); box.appendChild(b);
+  });
+  $("qFb").textContent=""; $("qFb").className="fb";
+  $("qNext").style.visibility="hidden";
+  updHintBtn();
+  $("qModal").classList.remove("hidden");
+}
+function updHintBtn(){ const b=$("qHint"); b.textContent=`½ Pista 50/50 (${G.hints})`; b.disabled=G.hints<=0||qDone||curQ&&curQ.hinted; b.style.visibility="visible"; }
+function useHint(){
+  if(G.hints<=0||qDone||!curQ||curQ.hinted) return;
+  G.hints--; curQ.hinted=true;
+  const btns=[...$("qOpts").children]; const wrong=shuffle(btns.map((b,i)=>i).filter(i=>curQ.options[i]!==curQ.answer)).slice(0,2);
+  wrong.forEach(i=>{btns[i].classList.add("gone");btns[i].disabled=true;});
+  updHintBtn(); updHUD(true);
+}
+function answer(i){
+  if(qDone) return; qDone=true;
+  const ok=curQ.options[i]===curQ.answer;
+  const btns=[...$("qOpts").children];
+  btns.forEach((b,k)=>{b.disabled=true; if(curQ.options[k]===curQ.answer) b.classList.add("right");});
+  const fb=$("qFb");
+  if(ok){
+    G.correct++; G.streak++; G.best=Math.max(G.best,G.streak);
+    const pts=(curKind==="tile"?150:100)+20*Math.min(G.streak,10);
+    G.score+=pts; fb.textContent=`¡Correcto! +${pts}`; fb.className="fb ok"; SFX.correct();
+    if(curKind==="lock"){ curLock.locked=false; SFX.unlock(); if(curLock.lo===undefined) SFX.open();
+      const y = curLock.lo!==undefined ? (surf(floors[curLock.hi],curLock.x)+surf(floors[curLock.lo],curLock.x))/2 : surf(floors[curLock.f],curLock.x)-26;
+      splash(curLock.x,y,"#f0cf63",16); }
+    checkBonuses();
+    clearTimeout(qTimer); qTimer=setTimeout(closeQ,1100);
+  } else {
+    btns[i].classList.add("wrong");
+    G.streak=0; G.missed.push({q:curQ.review, a:curQ.answer, g:curQ.options[i]});
+    fb.innerHTML=`Respuesta correcta: <span style="color:#00674a">${esc(curQ.answer)}</span>`+(curKind==="lock"?"<br><span class='small'>¡Cuidado! Viene otro obstáculo.</span>":"");
+    fb.className="fb no"; SFX.wrong();
+    if(curKind==="lock"){ villain.extra+=1; villain.timer=Math.min(villain.timer,.6); }
+  }
+  $("qNext").style.visibility="visible"; updHintBtn(); updHUD(true);
+}
+function closeQ(){
+  clearTimeout(qTimer);
+  if(state!=="question") return;
+  $("qModal").classList.add("hidden");
+  state="play"; player.inv=Math.max(player.inv,35); curQ=null;
+}
+function checkBonuses(){
+  const msgs=[];
+  if(G.streak>0 && G.streak%3===0){ G.shield=Math.min(G.shield+1,2); msgs.push("◈ ¡Escudo de azulejo!"); }
+  if(G.correct>0 && G.correct%4===0){ G.hints=Math.min(G.hints+1,3); msgs.push("½ ¡Pista 50/50!"); }
+  if(G.streak>0 && G.streak%5===0){ G.fan=10; msgs.push("✺ ¡Abanico sevillano: 10 s!"); }
+  if(G.streak>0 && G.streak%8===0 && G.lives<5){ G.lives++; msgs.push("♥ ¡Vida extra!"); }
+  if(msgs.length){ setTimeout(()=>{SFX.bonus(); msgs.forEach((m,i)=>setTimeout(()=>toast(m),i*1300));},250); }
+}
+
+/* =========================================================
+   SCREENS
+   ========================================================= */
+const BONUS_HTML = `<div class="legend">
+  <span>◈</span><span><b>Tile Shield (Escudo)</b> — 3 correct in a row. Blocks one hit.</span>
+  <span>½</span><span><b>50/50 Hint (Pista)</b> — every 4 correct answers. Removes two wrong choices.</span>
+  <span>✺</span><span><b>Fan (Abanico)</b> — 5 correct in a row. For 10 seconds you smash obstacles you touch (+50 each).</span>
+  <span>♥</span><span><b>Extra Life (Vida extra)</b> — 8 correct in a row (5 lives max).</span>
+</div>`;
+const KEYS_HTML = `<div class="keys"><kbd>←</kbd><kbd>→</kbd> walk · <kbd>↑</kbd> climb / <b>open a lock</b> · <kbd>↓</kbd> climb down · <kbd>Space</kbd> jump (+25 for each obstacle you clear)<br>Questions: <kbd>1</kbd>–<kbd>4</kbd> answer · <kbd>H</kbd> use hint · <kbd>Enter</kbd> continue<br>On a phone or tablet, use the buttons below the game (▲ opens locks).</div>`;
+function showIntro(){
+  state="intro";
+  const i=stageIdx;
+  const html = i===2 ? `
+    <h2>Etapa 3 · Teruel</h2><div class="sub">Torre de El Salvador · Repaso mixto</div><div class="tilebar"></div>
+    <p>Teruel es la capital del <b>arte mudéjar</b>: torres de ladrillo decoradas con <b>cerámica verde y blanca</b>, construidas por artesanos musulmanes que vivían en un reino cristiano. La Torre de El Salvador (siglo XIII) tiene un <b>arco</b> en la base por donde pasa la calle. Hoy es Patrimonio de la Humanidad.</p>
+    <p><b>Your mission:</b> <b>El Torico</b>, the little bull statue from Teruel's main plaza, escaped from his column and is throwing <b>ceramic plates</b> and <b>bricks</b> at you. This tower has padlocked ladders <b>and</b> locked gates, and the questions mix <b>vocabulary and the conditional</b>.</p>
+    <p class="small">This is the hardest tower: obstacles move faster and roll down the ladders more often.</p>`
+  : i===0 ? `
+    <h2>Etapa 1 · Sevilla</h2><div class="sub">La Giralda · Vocabulario del Capítulo 8.1</div><div class="tilebar"></div>
+    <p>La Giralda fue el <b>alminar</b> de la gran mezquita almohade de Sevilla (siglo XII). En 1568 le añadieron el campanario renacentista y la veleta del <b>Giraldillo</b>. Por dentro no tiene escaleras: tiene <b>35 rampas</b> para subir… ¡a caballo!</p>
+    <p><b>Your mission:</b> The Giraldillo climbed down from the weathervane and is throwing <b>clay pots</b> and <b>oranges</b> at you! The ladders have <b>padlocks</b>: stand in front of one and press <kbd>↑</kbd> to answer a vocabulary question. Reach the top and <b>ring the bell</b>.</p>
+    <p class="small">A wrong answer keeps the lock closed, shows you the correct answer, and makes the Giraldillo throw an extra obstacle. Grab the <b>golden tiles</b> for bonus questions and extra points.</p>`
+  : `
+    <h2>Etapa 2 · Granada</h2><div class="sub">La Alhambra · El condicional</div><div class="tilebar"></div>
+    <p>La Alhambra («la roja» en árabe) está sobre la colina de la <b>Sabika</b>. La construyeron los reyes nazaríes en los siglos XIII y XIV. Desde la <b>Torre de la Vela</b>, la campana avisaba a los agricultores de la Vega cuándo regar.</p>
+    <p><b>Your mission:</b> Climb the hill on the zigzag path. A <b>stone lion</b> from the Patio de los Leones is throwing <b>water</b> and <b>clay jugs</b> at you. The iron <b>rejas</b> on the stairs and the horseshoe-arch <b>gates</b> open only with the <b>conditional</b>.</p>
+    <p class="small">Remember: infinitive + -ía, -ías, -ía, -íamos, -ían. Irregular stems: dir-, har-, podr-, pondr-, querr-, sabr-, saldr-, tendr-, vendr-, habr-.</p>`;
+  $("introCard").innerHTML = html + `<h3>Bonuses</h3>${BONUS_HTML}<h3>Controls</h3>${KEYS_HTML}<div class="row"><button class="btn green" id="bGo">¡A subir!</button></div>`;
+  $("oIntro").classList.remove("hidden");
+  $("bGo").onclick=()=>{ ac(); $("oIntro").classList.add("hidden"); state="play"; };
+  $("bGo").focus();
+}
+function stageClear(){
+  if(state!=="play") return;
+  state="clear"; clearT=0; bell.v=.12; SFX.bell();
+  const timeBonus=Math.max(0,Math.round(1200-stageTime*5));
+  const lifeBonus=G.lives*150;
+  G.score+=500+timeBonus+lifeBonus; G.stagesDone++;
+  G._last={timeBonus,lifeBonus};
+  splash(ST.bellX,floors[floors.length-1].y1-40,"#f0cf63",30);
+}
+function showClear(){
+  state="clearmsg";
+  const last=stageIdx>=STAGES.length-1;
+  const fact = [
+   "¿Sabías que…? El <b>arte mudéjar</b> lo hicieron artesanos musulmanes que vivían en reinos cristianos: ladrillo, azulejos y arcos árabes en iglesias y palacios cristianos. ¡Un verdadero encuentro entre culturas!",
+   "¿Sabías que…? El 2 de enero de 1492 se izaron las banderas de los Reyes Católicos en la Torre de la Vela: fue el final de la conquista de Granada.",
+   "¿Sabías que…? Según la leyenda de los <b>Amantes de Teruel</b>, Diego tenía cinco años para hacerse rico y poder casarse con Isabel. Y tú, ¿qué <b>harías</b> por amor?"][stageIdx];
+  $("msgCard").innerHTML = `<h2>¡Campana tocada!</h2><div class="sub">${ST.city} · ${ST.name}</div><div class="tilebar"></div>
+    <div class="stats">
+      <div class="stat"><small>Puntos</small><b>${G.score}</b></div>
+      <div class="stat"><small>Correctas</small><b>${G.correct} / ${G.asked}</b></div>
+      <div class="stat"><small>Bono de tiempo</small><b>+${G._last.timeBonus}</b></div>
+      <div class="stat"><small>Bono de vidas</small><b>+${G._last.lifeBonus}</b></div>
+    </div>
+    <p class="small">${fact}</p>
+    <div class="row"><button class="btn green" id="bNext">${last?"Ver resultados":"Siguiente: "+STAGES[stageIdx+1].city+" →"}</button></div>`;
+  $("oMsg").classList.remove("hidden");
+  $("bNext").onclick=()=>{ $("oMsg").classList.add("hidden"); if(last) showResults(); else { loadStage(stageIdx+1); showIntro(); } };
+  $("bNext").focus();
+}
+function showOver(){
+  $("msgCard").innerHTML = `<h2>¡Sin vidas!</h2><div class="sub">${ST.city} · ${ST.name}</div><div class="tilebar"></div>
+    <p style="text-align:center">Puntos: <b>${G.score}</b> · Correctas: <b>${G.correct} / ${G.asked}</b></p>
+    <p class="small" style="text-align:center">You can continue from your last floor with 3 lives (−300 points).</p>
+    <div class="row"><button class="btn green" id="bCont">Continuar (−300)</button><button class="btn alt" id="bEnd">Terminar y ver resultados</button></div>`;
+  $("oMsg").classList.remove("hidden");
+  $("bCont").onclick=()=>{ $("oMsg").classList.add("hidden"); G.lives=3; G.score=Math.max(0,G.score-300); G.continues++; respawn(); hazards=[]; villain.timer=2; state="play"; };
+  $("bEnd").onclick=()=>{ $("oMsg").classList.add("hidden"); showResults(); };
+  $("bCont").focus();
+}
+function fmtTime(s){s=Math.round(s);return Math.floor(s/60)+":"+String(s%60).padStart(2,"0");}
+function showResults(){
+  state="results";
+  const pct=G.asked?Math.round(G.correct/G.asked*100):0;
+  const best=LS.get("torresAlAndalus.best",0), rec=G.score>best;
+  if(rec) LS.set("torresAlAndalus.best",G.score);
+  const title = G.stagesDone>=STAGES.length ? "¡Conquistaste las tres torres!" : "Resultados";
+  const missed = G.missed.length ? G.missed.slice(-12).map(m=>`<div>${esc(m.q)}<br>✗ ${esc(m.g)} → <span class="c">${esc(m.a)}</span></div>`).join("") : "<div>¡Ningún error! Excelente.</div>";
+  $("resCard").innerHTML = `<h2>${title}</h2><div class="sub">Torres de Al-Ándalus · Capítulo 8.1</div><div class="tilebar"></div>
+    ${rec&&G.score>0?'<p style="text-align:center;font-weight:800;color:#00674a">¡Nuevo récord personal!</p>':""}
+    <div class="stats">
+      <div class="stat"><small>Puntos</small><b>${G.score}</b></div>
+      <div class="stat"><small>Récord</small><b>${Math.max(best,G.score)}</b></div>
+      <div class="stat"><small>Correctas</small><b>${G.correct} / ${G.asked} (${pct}%)</b></div>
+      <div class="stat"><small>Mejor racha</small><b>${G.best}</b></div>
+      <div class="stat"><small>Torres</small><b>${G.stagesDone} / ${STAGES.length}</b></div>
+      <div class="stat"><small>Tiempo</small><b>${fmtTime(G.time)}</b></div>
+    </div>
+    <h3>Para repasar</h3><div class="missed">${missed}</div>
+    <div class="row"><button class="btn green" id="bAgain">Jugar otra vez</button><button class="btn alt" id="bMenu">Menú principal</button></div>`;
+  $("oResults").classList.remove("hidden");
+  $("bAgain").onclick=()=>{ $("oResults").classList.add("hidden"); newGame(); showIntro(); updHUD(true); };
+  $("bMenu").onclick=()=>{ $("oResults").classList.add("hidden"); toTitle(); };
+}
+function copyText(t){
+  const done=()=>toast("Resultado copiado");
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(done,()=>fallback());
+  else fallback();
+  function fallback(){ const ta=document.createElement("textarea"); ta.value=t; document.body.appendChild(ta); ta.select(); try{document.execCommand("copy");done();}catch(e){} ta.remove(); }
+}
+let toastT=null;
+function toast(m){ const t=$("toast"); t.textContent=m; t.classList.add("show"); clearTimeout(toastT); toastT=setTimeout(()=>t.classList.remove("show"),1500); }
+function togglePause(){
+  if(state==="play"){ state="paused";
+    $("msgCard").innerHTML=`<h2>Pausa</h2><div class="tilebar"></div>${KEYS_HTML}<h3>Bonuses</h3>${BONUS_HTML}<div class="row"><button class="btn green" id="bRes">Seguir jugando</button><button class="btn alt" id="bQuit">Terminar</button></div>`;
+    $("oMsg").classList.remove("hidden");
+    $("bRes").onclick=togglePause; $("bQuit").onclick=()=>{ $("oMsg").classList.add("hidden"); showResults(); };
+  } else if(state==="paused"){ $("oMsg").classList.add("hidden"); state="play"; }
+}
+
+/* =========================================================
+   TITLE / ROSTER / TEACHER
+   ========================================================= */
+function toTitle(){
+  state="title"; loadStage(0); buildTitle(); $("oTitle").classList.remove("hidden"); updHUD(true);
+}
+function buildTitle(){
+  const sr=$("stageRow"); sr.innerHTML="";
+  const lab=["1 · Sevilla — Vocabulario","2 · Granada — Condicional","3 · Teruel — Repaso mixto"];
+  STAGES.forEach((st,i)=>{ const b=document.createElement("button"); b.className="chip per"+(i===+settings.startStage?" sel":""); b.textContent=lab[i];
+    b.onclick=()=>{ settings.startStage=i; LS.set("torresAlAndalus.prefs",settings); buildTitle(); }; sr.appendChild(b); });
+  const dr=$("diffRow"); dr.innerHTML="";
+  [["easy","Fácil"],["normal","Normal"],["hard","Difícil"]].forEach(([k,t])=>{ const b=document.createElement("button"); b.className="chip"+(k===settings.diff?" sel":""); b.textContent=t;
+    b.onclick=()=>{ settings.diff=k; LS.set("torresAlAndalus.prefs",settings); buildTitle(); }; dr.appendChild(b); });
+  const best=LS.get("torresAlAndalus.best",0);
+  $("bestLine").textContent = best ? "Tu récord: "+best+" puntos" : "";
+}
+$("bStart").onclick=()=>{ ac(); $("oTitle").classList.add("hidden"); newGame(); showIntro(); updHUD(true); };
+
+/* =========================================================
+   HUD
+   ========================================================= */
+let hudCache="";
+function updHUD(force){
+  const s=[stageIdx,G.score,G.lives,G.streak,G.shield,G.hints,Math.ceil(G.fan),muted].join("|");
+  if(!force && s===hudCache) return; hudCache=s;
+  $("hStage").textContent = `Etapa ${stageIdx+1}: ${ST.name}`;
+  $("hScore").textContent=G.score;
+  $("hLives").textContent="♥".repeat(G.lives)+"♡".repeat(Math.max(0,3-G.lives));
+  $("hStreak").textContent=G.streak;
+  $("pShield").textContent="◈ "+G.shield; $("pShield").classList.toggle("on",G.shield>0);
+  $("pHint").textContent="½ "+G.hints; $("pHint").classList.toggle("on",G.hints>0);
+  $("pFan").textContent=G.fan>0?"✺ "+Math.ceil(G.fan)+"s":"✺"; $("pFan").classList.toggle("on",G.fan>0);
+  $("bMute").textContent=muted?"♪̸":"♪"; $("bMute").style.opacity=muted?.5:1;
+}
+$("bMute").onclick=()=>{ muted=!muted; LS.set("torresAlAndalus.muted",muted); updHUD(true); };
+$("bPause").onclick=()=>togglePause();
+$("qHint").onclick=useHint; $("qNext").onclick=closeQ;
+
+/* =========================================================
+   INPUT
+   ========================================================= */
+const KMAP={ArrowLeft:"left",KeyA:"left",ArrowRight:"right",KeyD:"right",ArrowUp:"up",KeyW:"up",ArrowDown:"down",KeyS:"down",Space:"jump"};
+window.addEventListener("keydown",e=>{
+  const typing = document.activeElement && (document.activeElement.tagName==="INPUT"||document.activeElement.tagName==="TEXTAREA");
+  if(typing) return;
+  if(state==="question"){
+    if(/^Digit[1-4]$/.test(e.code)||/^Numpad[1-4]$/.test(e.code)){ const i=+e.code.slice(-1)-1; const b=$("qOpts").children[i]; if(b&&!b.disabled) answer(i); e.preventDefault(); }
+    else if(e.code==="KeyH") useHint();
+    else if((e.code==="Enter"||e.code==="Space") && qDone){ closeQ(); e.preventDefault(); }
+    return;
+  }
+  if(e.code==="KeyP"||e.code==="Escape"){ togglePause(); return; }
+  if(e.code==="KeyM"){ $("bMute").click(); return; }
+  const k=KMAP[e.code]; if(!k) return;
+  if(state==="play"||state==="paused"){ e.preventDefault(); }
+  if(state!=="play") return;
+  if(!keys[k]){ if(k==="up") taps.up=true; if(k==="jump") taps.jump=true; }
+  keys[k]=true;
+});
+window.addEventListener("keyup",e=>{ const k=KMAP[e.code]; if(k) keys[k]=false; });
+window.addEventListener("blur",()=>{ for(const k in keys) keys[k]=false; });
+document.addEventListener("visibilitychange",()=>{ if(document.hidden && state==="play") togglePause(); });
+// touch
+const isTouch = ("ontouchstart" in window) || (window.matchMedia && matchMedia("(pointer:coarse)").matches);
+if(isTouch) $("touch").classList.add("show");
+document.querySelectorAll("#touch .tb").forEach(b=>{
+  const k=b.dataset.k;
+  const down=e=>{ e.preventDefault(); ac(); if(state==="play"){ if(!keys[k]){ if(k==="up")taps.up=true; if(k==="jump")taps.jump=true; } } keys[k]=true; b.classList.add("on"); try{b.setPointerCapture(e.pointerId);}catch(_){} };
+  const up=e=>{ keys[k]=false; b.classList.remove("on"); };
+  b.addEventListener("pointerdown",down); b.addEventListener("pointerup",up); b.addEventListener("pointercancel",up); b.addEventListener("lostpointercapture",up);
+});
+
+/* =========================================================
+   MAIN LOOP
+   ========================================================= */
+let last=performance.now();
+function loop(now){
+  const dt=clamp((now-last)/16.667,0,2.5); last=now;
+  update(dt); render(); updHUD(false);
+  requestAnimationFrame(loop);
+}
+window.addEventListener("resize",layout);
+loadStage(0); layout(); buildTitle(); updHUD(true);
+requestAnimationFrame(loop);
+// test hook
+window.__T={get state(){return state;},get q(){return curQ;},G,genVocabQ,genCondQ,cond,conjOptions,loadStage:(i)=>{loadStage(i);},player:()=>player,setState:s=>state=s,ladders:()=>ladders,gates:()=>gates,hazards:()=>hazards};
+</script>
+</body>
+</html>
